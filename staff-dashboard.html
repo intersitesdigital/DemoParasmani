@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Staff Dashboard — Parasmani Enterprises</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .staff-layout{max-width:900px;margin:0 auto;padding:100px 20px 40px}
+    .staff-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+    .staff-header h1{font-size:1.4rem;font-weight:700}.staff-header h1 span{color:var(--gold)}
+    .staff-card{background:var(--bg3);border:1px solid rgba(212,168,83,.06);border-radius:12px;padding:24px;margin-bottom:20px}
+    .staff-card h3{font-size:1rem;margin-bottom:14px;color:var(--gold)}
+    .staff-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+    .ss{background:var(--bg3);border:1px solid rgba(212,168,83,.06);border-radius:12px;padding:20px;text-align:center}
+    .ss .sv{font-size:1.6rem;font-weight:700;color:var(--gold)}.ss .sl{font-size:.82rem;color:var(--text3);margin-top:4px}
+    table{width:100%;border-collapse:collapse}thead th{padding:10px 12px;text-align:left;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--text3);border-bottom:1px solid rgba(212,168,83,.06);font-weight:600}
+    tbody td{padding:10px 12px;font-size:.85rem;color:var(--text2);border-bottom:1px solid rgba(255,255,255,.02)}
+    .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:600}
+    .badge-green{background:rgba(37,211,102,.15);color:#25d366}.badge-gold{background:rgba(212,168,83,.15);color:var(--gold)}.badge-blue{background:rgba(59,130,246,.15);color:#3b82f6}
+    .leave-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.leave-form input,.leave-form textarea,.leave-form select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(212,168,83,.15);background:var(--bg);color:var(--text);font-family:var(--font);outline:none}
+    @media(max-width:600px){.staff-stats{grid-template-columns:1fr}.leave-form{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <nav class="navbar scrolled"><div class="container nav-inner">
+    <a href="index.html" class="nav-logo"><div class="logo-icon">⚡</div><div>Parasmani <span>Enterprises</span></div></a>
+    <div class="nav-actions"><button id="darkModeToggle" class="nav-btn">☀️</button><a href="#" class="nav-btn" onclick="logout()">🚪 Logout</a></div>
+  </div></nav>
+
+  <div class="staff-layout">
+    <div class="staff-header">
+      <h1>👋 Welcome, <span id="staffName"></span></h1>
+      <span class="badge badge-blue" id="staffEmpId"></span>
+    </div>
+
+    <!-- RFID Scan -->
+    <div class="staff-card">
+      <h3>🪪 Mark Attendance</h3>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <input type="text" id="rfidInput" placeholder="Enter your RFID Card ID" style="flex:1;padding:12px;border-radius:8px;border:1px solid rgba(212,168,83,.15);background:var(--bg);color:var(--text);font-size:1rem;outline:none;min-width:200px">
+        <button class="btn btn-primary" onclick="markAttendance()">📡 Scan</button>
+      </div>
+      <div id="scanResult" style="margin-top:12px;font-size:.9rem"></div>
+    </div>
+
+    <!-- Stats -->
+    <div class="staff-stats">
+      <div class="ss"><div class="sv" id="totalDays">0</div><div class="sl">Days Worked</div></div>
+      <div class="ss"><div class="sv" id="totalHours">0</div><div class="sl">Total Hours</div></div>
+      <div class="ss"><div class="sv" id="netSalary">₹0</div><div class="sl">Net Salary</div></div>
+    </div>
+
+    <!-- Attendance History -->
+    <div class="staff-card">
+      <h3>📋 My Attendance</h3>
+      <table><thead><tr><th>Date</th><th>Check In</th><th>Check Out</th><th>Hours</th><th>Status</th></tr></thead>
+      <tbody id="myAttendance"></tbody></table>
+    </div>
+
+    <!-- Salary Breakdown -->
+    <div class="staff-card">
+      <h3>💰 Salary Summary</h3>
+      <div id="salaryBreakdown"></div>
+    </div>
+
+    <!-- Leave Application -->
+    <div class="staff-card">
+      <h3>📝 Apply for Leave</h3>
+      <div class="leave-form">
+        <input type="date" id="leaveFrom" placeholder="From Date">
+        <input type="date" id="leaveTo" placeholder="To Date">
+        <select id="leaveType"><option>Casual Leave</option><option>Sick Leave</option><option>Personal Leave</option></select>
+        <textarea id="leaveReason" placeholder="Reason..." rows="2" style="grid-column:span 1"></textarea>
+      </div>
+      <button class="btn btn-primary" style="margin-top:12px" onclick="applyLeave()">Submit Leave Request</button>
+      <div id="leaveHistory" style="margin-top:16px"></div>
+    </div>
+
+    <!-- Profile -->
+    <div class="staff-card">
+      <h3>👤 My Profile</h3>
+      <div id="profileInfo"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="globalToast"></div>
+  <script src="js/app.js"></script>
+  <script>
+    let staffData = null;
+    document.addEventListener('DOMContentLoaded', () => {
+      const u = getCurrentUser();
+      if (!u || u.role !== 'staff') { location.href = 'login.html'; return; }
+      const staff = DB.get('staff', []);
+      staffData = staff.find(s => s.id === u.id || s.username === u.username);
+      if (!staffData) { location.href = 'login.html'; return; }
+      document.getElementById('staffName').textContent = staffData.name;
+      document.getElementById('staffEmpId').textContent = staffData.empId;
+      document.getElementById('rfidInput').value = staffData.rfidId || '';
+      loadData();
+    });
+    function loadData() {
+      const att = DB.get('attendance', []).filter(a => a.empId === staffData.empId);
+      const worked = att.filter(a => a.hours > 0);
+      const days = worked.length;
+      const hours = worked.reduce((t, a) => t + a.hours, 0);
+      const ot = worked.reduce((t, a) => t + Math.max(0, a.hours - staffData.hoursPerDay), 0);
+      let net = 0;
+      if (staffData.salaryType === 'monthly') net = Math.round(staffData.salary / 26 * days);
+      else if (staffData.salaryType === 'daily') net = staffData.salary * days;
+      else net = Math.round(staffData.salary * hours);
+      const otRate = staffData.salaryType === 'hourly' ? staffData.salary : Math.round(staffData.salary / 26 / staffData.hoursPerDay);
+      const otPay = Math.round(ot * otRate);
+      net += otPay;
+      document.getElementById('totalDays').textContent = days;
+      document.getElementById('totalHours').textContent = hours.toFixed(1);
+      document.getElementById('netSalary').textContent = formatPrice(net);
+      // Attendance table
+      document.getElementById('myAttendance').innerHTML = att.reverse().map(a => `<tr><td>${a.date}</td><td>${a.checkIn || '-'}</td><td>${a.checkOut || '—'}</td><td>${a.hours ? a.hours + ' hrs' : '—'}</td><td><span class="badge badge-${a.checkOut ? 'green' : 'gold'}">${a.checkOut ? 'Complete' : 'Active'}</span></td></tr>`).join('') || '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text3)">No attendance records</td></tr>';
+      // Salary breakdown
+      document.getElementById('salaryBreakdown').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.88rem">
+          <div style="padding:10px;background:rgba(212,168,83,.04);border-radius:8px"><span style="color:var(--text3)">Salary Type:</span><br><strong>${staffData.salaryType}</strong></div>
+          <div style="padding:10px;background:rgba(212,168,83,.04);border-radius:8px"><span style="color:var(--text3)">Base Rate:</span><br><strong>${formatPrice(staffData.salary)}/${staffData.salaryType === 'monthly' ? 'month' : staffData.salaryType === 'daily' ? 'day' : 'hour'}</strong></div>
+          <div style="padding:10px;background:rgba(212,168,83,.04);border-radius:8px"><span style="color:var(--text3)">Days Worked:</span><br><strong>${days}</strong></div>
+          <div style="padding:10px;background:rgba(212,168,83,.04);border-radius:8px"><span style="color:var(--text3)">Overtime:</span><br><strong>${ot.toFixed(1)} hrs (+${formatPrice(otPay)})</strong></div>
+        </div>
+        <div style="margin-top:12px;padding:14px;background:rgba(212,168,83,.1);border:1px solid rgba(212,168,83,.2);border-radius:8px;text-align:center;font-size:1.2rem;font-weight:700;color:var(--gold)">Net Salary: ${formatPrice(net)}</div>`;
+      // Profile
+      document.getElementById('profileInfo').innerHTML = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.88rem">
+          <div style="padding:10px;background:rgba(212,168,83,.04);border-radius:8px"><span style="color:var(--text3)">Name:</span><br><strong>${staffData.name}</strong></div>
+          <div style="padding:10px;background:rgba(212,168,83,.04);border-radius:8px"><span style="color:var(--text3)">Employee ID:</span><br><strong>${staffData.empId}</strong></div>
+          <div style="padding:10px;background:rgba(212,168,83,.04);border-radius:8px"><span style="color:var(--text3)">Role:</span><br><strong>${staffData.role}</strong></div>
+          <div style="padding:10px;background:rgba(212,168,83,.04);border-radius:8px"><span style="color:var(--text3)">Shift:</span><br><strong style="text-transform:capitalize">${staffData.shift||'Morning'}</strong></div>
+          <div style="padding:10px;background:rgba(212,168,83,.04);border-radius:8px"><span style="color:var(--text3)">Phone:</span><br><strong>${staffData.phone}</strong></div>
+          <div style="padding:10px;background:rgba(212,168,83,.04);border-radius:8px"><span style="color:var(--text3)">Performance:</span><br><strong style="color:var(--green)">${getStars(staffData.performance||4)}</strong></div>
+        </div>`;
+      // Leave history
+      const leaves = DB.get('leave_requests', []).filter(l=>l.empId===staffData.empId);
+      document.getElementById('leaveHistory').innerHTML = leaves.length ? '<h4 style="margin-bottom:8px;font-size:.88rem;color:var(--text3)">Leave History</h4>' + leaves.reverse().map(l => `<div style="padding:8px 12px;background:rgba(212,168,83,.04);border-radius:6px;margin-bottom:6px;font-size:.85rem;display:flex;justify-content:space-between;align-items:center;"><div><strong>${l.type}</strong><br><span style="color:var(--text3)">${l.dates}</span></div> <span class="badge badge-${l.status==='approved'?'green':l.status==='rejected'?'red':'gold'}">${l.status}</span></div>`).join('') : '';
+    }
+    function markAttendance() {
+      const rfid = document.getElementById('rfidInput').value.trim();
+      if (!rfid) return toast('Enter RFID', 'error');
+      if (rfid !== staffData.rfidId) { document.getElementById('scanResult').innerHTML = '<span style="color:var(--red)">❌ RFID does not match your card</span>'; return; }
+      const today = new Date().toISOString().split('T')[0];
+      let att = DB.get('attendance', []);
+      let rec = att.find(a => a.rfid === rfid && a.date === today);
+      if (!rec) { rec = { id: generateId(), empId: staffData.empId, name: staffData.name, rfid, date: today, checkIn: new Date().toLocaleTimeString(), checkOut: null, hours: 0 }; att.push(rec); document.getElementById('scanResult').innerHTML = `<span style="color:var(--green)">✓ Checked IN at ${rec.checkIn}</span>`; }
+      else if (!rec.checkOut) { rec.checkOut = new Date().toLocaleTimeString(); const cin = new Date('2000-01-01 ' + rec.checkIn), cout = new Date('2000-01-01 ' + rec.checkOut); rec.hours = Math.round((cout - cin) / 3600000 * 10) / 10; document.getElementById('scanResult').innerHTML = `<span style="color:var(--gold)">✓ Checked OUT. Hours: ${rec.hours}</span>`; }
+      else { document.getElementById('scanResult').innerHTML = '<span style="color:var(--text3)">Already checked in & out today</span>'; }
+      DB.set('attendance', att);
+      loadData();
+    }
+    function applyLeave() {
+      const from = document.getElementById('leaveFrom').value;
+      const to = document.getElementById('leaveTo').value;
+      const type = document.getElementById('leaveType').value;
+      const reason = document.getElementById('leaveReason').value;
+      if (!from || !to) return toast('Select dates', 'error');
+      const lvs = DB.get('leave_requests', []);
+      lvs.push({ id:generateId(), empId: staffData.empId, staffName: staffData.name, type, dates: from+' to '+to, reason, status: 'pending', date: new Date().toISOString() });
+      DB.set('leave_requests', lvs);
+      toast('Leave requested');
+      document.getElementById('leaveFrom').value='';
+      document.getElementById('leaveTo').value='';
+      document.getElementById('leaveReason').value='';
+      loadData();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products — Parasmani Enterprises</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar scrolled" id="navbar"><div class="container nav-inner">
+    <a href="index.html" class="nav-logo"><div class="logo-icon">⚡</div><div>Parasmani <span>Enterprises</span></div></a>
+    <div class="search-wrapper"><span class="search-icon">🔍</span><input type="text" id="smartSearch" placeholder="Search products..."><div id="searchSuggestions"></div></div>
+    <div class="nav-actions">
+      <!-- Language Toggle -->
+      <div class="lang-toggle">
+        <button data-lang="en">EN</button>
+        <button data-lang="hi">HI</button>
+      </div>
+      <button id="darkModeToggle" class="nav-btn">☀️</button>
+      <!-- Notifications -->
+      <div class="notif-btn nav-btn">
+        🔔<span class="notif-badge">0</span>
+        <div class="notif-panel"></div>
+      </div>
+      <a href="cart.html" class="nav-btn">🛒<span class="cart-count">0</span></a>
+      <a href="login.html" class="nav-btn" id="navAuthBtn">👤 Login</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div></nav>
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+  <div class="mobile-menu" id="mobileMenu"><a href="index.html">🏠 Home</a><a href="products.html">📦 Products</a><a href="cart.html">🛒 Cart</a><a href="login.html">👤 Login</a></div>
+
+  <div class="page-header"><div class="container"><div class="breadcrumb"><a href="index.html">Home</a> / Products</div><h1>All <span>Products</span></h1></div></div>
+
+  <div class="container">
+    <div class="catalog-layout">
+      <!-- FILTER SIDEBAR -->
+      <aside class="filter-sidebar">
+        <div class="filter-group"><h4>Categories</h4><div id="catFilters"></div></div>
+        <div class="filter-group"><h4>Brands</h4><div id="brandFilters"></div></div>
+        <div class="filter-group"><h4>Price Range</h4>
+          <input type="range" id="priceRange" min="0" max="100000" value="100000">
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;color:var(--text3)"><span>₹0</span><span id="priceLabel">₹1,00,000</span></div>
+        </div>
+        <div class="filter-group"><h4>Rating</h4>
+          <label><input type="checkbox" class="rating-filter" value="4"> ★★★★ & up</label>
+          <label><input type="checkbox" class="rating-filter" value="3"> ★★★ & up</label>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:12px" onclick="resetFilters()">Reset Filters</button>
+      </aside>
+      <!-- PRODUCTS -->
+      <div>
+        <div class="sort-bar">
+          <span id="resultCount" style="font-size:.88rem;color:var(--text2)"></span>
+          <div style="display:flex;gap:12px;align-items:center">
+            <select id="sortSelect"><option value="popular">Most Popular</option><option value="price-low">Price: Low to High</option><option value="price-high">Price: High to Low</option><option value="rating">Top Rated</option><option value="newest">Newest</option><option value="discount">Best Discount</option></select>
+            <div class="view-toggle"><button class="active" onclick="setView('grid',this)">▦</button><button onclick="setView('list',this)">☰</button></div>
+          </div>
+        </div>
+        <div class="products-grid" id="productsGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPARE BAR -->
+  <div class="compare-bar" id="compareBar">
+    <div class="compare-items" id="compareItems"></div>
+    <button class="btn btn-primary" onclick="showCompare()">Compare (<span id="compareCount">0</span>)</button>
+  </div>
+
+  <!-- COMPARE MODAL -->
+  <div id="compareModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2000;padding:40px;overflow-y:auto">
+    <div style="max-width:1000px;margin:0 auto;background:var(--bg2);border-radius:16px;padding:32px;border:1px solid rgba(212,168,83,.15)">
+      <div style="display:flex;justify-content:space-between;margin-bottom:20px"><h3>📊 Product Comparison</h3><button onclick="document.getElementById('compareModal').style.display='none'" style="background:none;color:var(--text);font-size:1.2rem">✕</button></div>
+      <div id="compareContent"></div>
+    </div>
+  </div>
+
+  <footer class="footer"><div class="container"><div class="footer-bottom"><p>© 2026 Parasmani Enterprises. All Rights Reserved.</p></div></div></footer>
+  
+  <!-- LIVE CHAT WIDGET -->
+  <div class="chat-widget">
+    <button class="chat-toggle">💬<span class="chat-dot"></span></button>
+    <div class="chat-box">
+      <div class="chat-box-header">Parasmani Support <button onclick="document.querySelector('.chat-box').classList.remove('show')">✕</button></div>
+      <div class="chat-messages"></div>
+      <div class="chat-input">
+        <input type="text" placeholder="Type a message...">
+        <button class="chat-send">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    let currentView = 'grid', compareList = [];
+    document.addEventListener('DOMContentLoaded', () => {
+      const hb=document.getElementById('hamburger'),mm=document.getElementById('mobileMenu'),mo=document.getElementById('mobileOverlay');
+      const toggle=()=>{mm.classList.toggle('active');mo.classList.toggle('active')};
+      hb?.addEventListener('click',toggle);mo?.addEventListener('click',toggle);
+      // URL params
+      const params = new URLSearchParams(location.search);
+      const catParam = params.get('cat');
+      // Build filters
+      const products = DB.get('products',[]);
+      const cats = [...new Set(products.map(p=>p.cat))];
+      const brands = [...new Set(products.map(p=>p.brand))];
+      document.getElementById('catFilters').innerHTML = CATEGORIES.map(c=>`<label><input type="checkbox" class="cat-filter" value="${c.id}" ${catParam===c.id?'checked':''}> ${c.name}</label>`).join('');
+      document.getElementById('brandFilters').innerHTML = brands.map(b=>`<label><input type="checkbox" class="brand-filter" value="${b}"> ${b}</label>`).join('');
+      // Events
+      document.querySelectorAll('.cat-filter,.brand-filter,.rating-filter').forEach(cb=>cb.addEventListener('change',renderProducts));
+      document.getElementById('priceRange').addEventListener('input',e=>{document.getElementById('priceLabel').textContent=formatPrice(e.target.value);renderProducts()});
+      document.getElementById('sortSelect').addEventListener('change',renderProducts);
+      renderProducts();
+    });
+    function renderProducts(){
+      const products=DB.get('products',[]);
+      const selCats=[...document.querySelectorAll('.cat-filter:checked')].map(c=>c.value);
+      const selBrands=[...document.querySelectorAll('.brand-filter:checked')].map(c=>c.value);
+      const maxPrice=+document.getElementById('priceRange').value;
+      const minRating=[...document.querySelectorAll('.rating-filter:checked')].map(c=>+c.value);
+      const sort=document.getElementById('sortSelect').value;
+      let filtered=products.filter(p=>{
+        if(selCats.length&&!selCats.includes(p.cat))return false;
+        if(selBrands.length&&!selBrands.includes(p.brand))return false;
+        if(p.price>maxPrice)return false;
+        if(minRating.length&&p.rating<Math.min(...minRating))return false;
+        return true;
+      });
+      if(sort==='price-low')filtered.sort((a,b)=>a.price-b.price);
+      else if(sort==='price-high')filtered.sort((a,b)=>b.price-a.price);
+      else if(sort==='rating')filtered.sort((a,b)=>b.rating-a.rating);
+      else if(sort==='discount')filtered.sort((a,b)=>getDiscount(b.price,b.mrp)-getDiscount(a.price,a.mrp));
+      else filtered.sort((a,b)=>b.reviews-a.reviews);
+      document.getElementById('resultCount').textContent=`${filtered.length} products found`;
+      const grid=document.getElementById('productsGrid');
+      grid.className=currentView==='list'?'products-grid':'products-grid';
+      if(currentView==='list')grid.style.gridTemplateColumns='1fr';else grid.style.gridTemplateColumns='';
+      grid.innerHTML=filtered.length?filtered.map(p=>renderProductCard(p)).join(''):'<div style="grid-column:span 4;text-align:center;padding:60px;color:var(--text3)"><p style="font-size:2rem;margin-bottom:12px">😕</p><p>No products match your filters</p></div>';
+    }
+    function setView(v,btn){currentView=v;document.querySelectorAll('.view-toggle button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderProducts()}
+    function resetFilters(){document.querySelectorAll('.cat-filter,.brand-filter,.rating-filter').forEach(c=>c.checked=false);document.getElementById('priceRange').value=100000;document.getElementById('priceLabel').textContent='₹1,00,000';document.getElementById('sortSelect').value='popular';renderProducts()}
+    function showCompare(){
+      if(compareList.length<2){toast('Select at least 2 products to compare','error');return}
+      const products=DB.get('products',[]);const items=compareList.map(id=>products.find(p=>p.id===id)).filter(Boolean);
+      const allSpecs=[...new Set(items.flatMap(p=>Object.keys(p.specs||{})))];
+      let html='<table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:12px;text-align:left;color:var(--text3)">Feature</th>';
+      items.forEach(p=>html+=`<th style="padding:12px;text-align:center"><img src="${p.img}" style="width:80px;height:80px;object-fit:contain;margin:0 auto 8px"><br><strong>${p.name}</strong></th>`);
+      html+='</tr></thead><tbody>';
+      html+=`<tr><td style="padding:10px;color:var(--text3)">Price</td>${items.map(p=>`<td style="padding:10px;text-align:center;color:var(--gold);font-weight:700">${formatPrice(p.price)}</td>`).join('')}</tr>`;
+      html+=`<tr><td style="padding:10px;color:var(--text3)">Rating</td>${items.map(p=>`<td style="padding:10px;text-align:center">${getStars(p.rating)} (${p.rating})</td>`).join('')}</tr>`;
+      allSpecs.forEach(s=>{html+=`<tr><td style="padding:10px;color:var(--text3)">${s}</td>${items.map(p=>`<td style="padding:10px;text-align:center">${p.specs?.[s]||'-'}</td>`).join('')}</tr>`});
+      html+='</tbody></table>';
+      document.getElementById('compareContent').innerHTML=html;
+      document.getElementById('compareModal').style.display='block';
+    }
+  </script>
+</body>
+</html>

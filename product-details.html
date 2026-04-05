@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Details — Parasmani Enterprises</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar scrolled"><div class="container nav-inner">
+    <a href="index.html" class="nav-logo"><div class="logo-icon">⚡</div><div>Parasmani <span>Enterprises</span></div></a>
+    <div class="search-wrapper"><span class="search-icon">🔍</span><input type="text" id="smartSearch" placeholder="Search..."><div id="searchSuggestions"></div></div>
+    <div class="nav-actions">
+      <!-- Language Toggle -->
+      <div class="lang-toggle">
+        <button data-lang="en">EN</button>
+        <button data-lang="hi">HI</button>
+      </div>
+      <button id="darkModeToggle" class="nav-btn">☀️</button>
+      <!-- Notifications -->
+      <div class="notif-btn nav-btn">
+        🔔<span class="notif-badge">0</span>
+        <div class="notif-panel"></div>
+      </div>
+      <a href="cart.html" class="nav-btn">🛒<span class="cart-count">0</span></a>
+      <a href="login.html" class="nav-btn" id="navAuthBtn">👤 Login</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div></nav>
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+
+  <div class="page-header"><div class="container"><div class="breadcrumb"><a href="index.html">Home</a> / <a href="products.html">Products</a> / <span id="pdBreadcrumb"></span></div></div></div>
+
+  <div class="container">
+    <div class="pd-grid">
+      <div class="pd-gallery">
+        <div class="pd-main-img"><img id="pdImage" src="" alt=""></div>
+        <div class="pd-thumbs" id="pdThumbs">
+          <!-- Thumbs will be injected by JS -->
+        </div>
+      </div>
+      <div class="pd-info">
+        <span class="pd-brand" id="pdBrand"></span>
+        <h1 id="pdName"></h1>
+        <div class="pd-rating" id="pdRating"></div>
+        <div class="pd-price" id="pdPrice"></div>
+        <p id="pdDesc" style="color:var(--text2);margin:16px 0;line-height:1.7"></p>
+        <div id="pdStock" style="margin:12px 0;font-size:.88rem"></div>
+        <div class="pd-specs"><h4 style="color:var(--gold);margin-bottom:12px">Specifications</h4><table id="pdSpecs"></table></div>
+        <div class="pd-actions">
+          <button class="btn btn-primary" id="addCartBtn">🛒 Add to Cart</button>
+          <button class="btn btn-outline" id="wishBtn">🤍 Wishlist</button>
+        </div>
+        <!-- EMI Calculator -->
+        <div class="emi-calc">
+          <h4>📱 EMI Calculator</h4>
+          <div style="display:flex;gap:12px;margin-top:8px">
+            <select id="emiMonths" style="padding:8px;border-radius:6px;border:1px solid rgba(212,168,83,.15);background:var(--bg);color:var(--text);font-size:.85rem">
+              <option value="3">3 Months</option><option value="6">6 Months</option><option value="9">9 Months</option><option value="12" selected>12 Months</option><option value="18">18 Months</option><option value="24">24 Months</option>
+            </select>
+          </div>
+          <div class="emi-result" id="emiResult"></div>
+        </div>
+      </div>
+    </div>
+    <!-- Reviews -->
+    <div style="padding:40px 0">
+      <h3 style="margin-bottom:20px">📝 Customer Reviews</h3>
+      <div id="reviewsList"></div>
+      <div style="margin-top:24px;background:var(--bg3);border-radius:12px;padding:24px;border:1px solid rgba(212,168,83,.06)">
+        <h4 style="margin-bottom:12px;color:var(--gold)">Write a Review</h4>
+        <div class="form-group"><input type="text" id="revName" placeholder="Your Name"></div>
+        <div class="form-group" style="margin-bottom:12px"><select id="revRating" style="padding:10px;border-radius:8px;border:1px solid rgba(212,168,83,.15);background:var(--bg);color:var(--text);width:100%"><option value="5">★★★★★ Excellent</option><option value="4">★★★★ Good</option><option value="3">★★★ Average</option><option value="2">★★ Poor</option><option value="1">★ Terrible</option></select></div>
+        <div class="form-group"><textarea id="revText" placeholder="Write your review..." style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(212,168,83,.15);background:rgba(0,0,0,.3);color:var(--text);font-family:var(--font);min-height:80px;outline:none"></textarea></div>
+        <button class="btn btn-primary" onclick="submitReview()">Submit Review</button>
+      </div>
+    </div>
+    <!-- Recently Viewed -->
+    <div style="padding:0 0 40px"><h3 style="margin-bottom:16px">👁️ Recently Viewed</h3><div class="products-grid" id="recentGrid" style="grid-template-columns:repeat(4,1fr)"></div></div>
+  </div>
+
+  <footer class="footer"><div class="container"><div class="footer-bottom"><p>© 2026 Parasmani Enterprises.</p></div></div></footer>
+  
+  <!-- LIVE CHAT WIDGET -->
+  <div class="chat-widget">
+    <button class="chat-toggle">💬<span class="chat-dot"></span></button>
+    <div class="chat-box">
+      <div class="chat-box-header">Parasmani Support <button onclick="document.querySelector('.chat-box').classList.remove('show')">✕</button></div>
+      <div class="chat-messages"></div>
+      <div class="chat-input">
+        <input type="text" placeholder="Type a message...">
+        <button class="chat-send">Send</button>
+      </div>
+    </div>
+  </div>
+  <script src="js/app.js"></script>
+  <script>
+    let currentProduct = null;
+    document.addEventListener('DOMContentLoaded', () => {
+      const id = +new URLSearchParams(location.search).get('id');
+      const products = DB.get('products', []);
+      currentProduct = products.find(p => p.id === id);
+      if (!currentProduct) { document.querySelector('.pd-grid').innerHTML = '<p style="text-align:center;padding:60px;color:var(--text3)">Product not found</p>'; return; }
+      addRecentlyViewed(id);
+      const p = currentProduct, disc = getDiscount(p.price, p.mrp);
+      document.title = p.name + ' — Parasmani Enterprises';
+      document.getElementById('pdBreadcrumb').textContent = p.name;
+      document.getElementById('pdImage').src = p.img;
+      document.getElementById('pdImage').alt = p.name;
+      
+      // Thumbnails setup
+      const thumbsParams = [p.img]; 
+      if(p.cat==='smart-lighting' || p.cat==='led-lights' || p.cat==='chandeliers') { thumbsParams.push('images/gallery-living.png'); thumbsParams.push('images/gallery-bedroom.png'); }
+      else if(p.cat==='tv' || p.cat==='ac') { thumbsParams.push('images/gallery-living.png'); }
+      else if(p.cat==='refrigerator' || p.cat==='kitchen') { thumbsParams.push('images/product-kitchen.png'); }
+      document.getElementById('pdThumbs').innerHTML = thumbsParams.map((imgSrc, i) => `<div class="pd-thumb ${i===0?'active':''}" onclick="setMainImage(this, '${imgSrc}')"><img src="${imgSrc}"></div>`).join('');
+      document.getElementById('pdBrand').textContent = p.brand;
+      document.getElementById('pdName').textContent = p.name;
+      document.getElementById('pdRating').innerHTML = `<span class="stars">${getStars(p.rating)}</span> <span>${p.rating} (${p.reviews} reviews)</span>`;
+      document.getElementById('pdPrice').innerHTML = `<span class="current">${formatPrice(p.price)}</span>${p.mrp>p.price?`<span class="original">${formatPrice(p.mrp)}</span><span class="discount">${disc}% OFF</span>`:''}`;
+      document.getElementById('pdDesc').textContent = p.desc;
+      document.getElementById('pdStock').innerHTML = p.stock > 10 ? `<span style="color:var(--green)">✓ In Stock (${p.stock} available)</span>` : p.stock > 0 ? `<span style="color:orange">⚠ Only ${p.stock} left!</span>` : `<span style="color:var(--red)">✕ Out of Stock</span>`;
+      if (p.specs) document.getElementById('pdSpecs').innerHTML = Object.entries(p.specs).map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+      // EMI
+      const calcEmi = () => { const m = +document.getElementById('emiMonths').value; document.getElementById('emiResult').textContent = `${formatPrice(Math.round(p.price/m))} / month × ${m} months`; };
+      calcEmi(); document.getElementById('emiMonths').addEventListener('change', calcEmi);
+      // Buttons
+      document.getElementById('addCartBtn').onclick = () => addToCart(p.id);
+      const wl = DB.get('wishlist', []);
+      const wb = document.getElementById('wishBtn');
+      if (wl.includes(p.id)) wb.innerHTML = '❤️ Wishlisted';
+      wb.onclick = () => { toggleWishlist(p.id); wb.innerHTML = DB.get('wishlist',[]).includes(p.id) ? '❤️ Wishlisted' : '🤍 Wishlist'; };
+      // Reviews
+      loadReviews();
+      // Recently viewed
+      const rv = DB.get('recently_viewed', []).filter(rid => rid !== id).slice(0, 4);
+      const recent = rv.map(rid => products.find(pp => pp.id === rid)).filter(Boolean);
+      document.getElementById('recentGrid').innerHTML = recent.map(pp => renderProductCard(pp)).join('');
+    });
+    function setMainImage(thumbEl, src) {
+      document.getElementById('pdImage').src = src;
+      document.querySelectorAll('.pd-thumb').forEach(t => t.classList.remove('active'));
+      thumbEl.classList.add('active');
+    }
+    function loadReviews() {
+      const reviews = DB.get('reviews_' + currentProduct.id, [
+        { name: 'Verified Buyer', rating: 5, text: 'Excellent product! Works perfectly. Fast delivery.' },
+        { name: 'Arun K.', rating: 4, text: 'Good quality. Value for money. Would recommend.' },
+      ]);
+      document.getElementById('reviewsList').innerHTML = reviews.map(r => `<div style="background:var(--bg3);border:1px solid rgba(212,168,83,.06);border-radius:12px;padding:16px;margin-bottom:12px"><div style="color:var(--gold);font-size:.85rem;margin-bottom:6px">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div><p style="color:var(--text2);font-size:.88rem;margin-bottom:8px">"${r.text}"</p><span style="font-size:.8rem;color:var(--text3)">— ${r.name}</span></div>`).join('');
+    }
+    function submitReview() {
+      const name = document.getElementById('revName').value || 'Anonymous';
+      const rating = +document.getElementById('revRating').value;
+      const text = document.getElementById('revText').value;
+      if (!text) { toast('Please write a review', 'error'); return; }
+      const reviews = DB.get('reviews_' + currentProduct.id, []);
+      reviews.unshift({ name, rating, text });
+      DB.set('reviews_' + currentProduct.id, reviews);
+      loadReviews();
+      document.getElementById('revName').value = '';
+      document.getElementById('revText').value = '';
+      toast('Review submitted!');
+    }
+  </script>
+</body>
+</html>

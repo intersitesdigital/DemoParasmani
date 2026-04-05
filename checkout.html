@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout — Parasmani Enterprises</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <nav class="navbar scrolled"><div class="container nav-inner">
+    <a href="index.html" class="nav-logo"><div class="logo-icon">⚡</div><div>Parasmani <span>Enterprises</span></div></a>
+    <div class="nav-actions">
+      <!-- Language Toggle -->
+      <div class="lang-toggle">
+        <button data-lang="en">EN</button>
+        <button data-lang="hi">HI</button>
+      </div>
+      <button id="darkModeToggle" class="nav-btn">☀️</button>
+      <!-- Notifications -->
+      <div class="notif-btn nav-btn">
+        🔔<span class="notif-badge">0</span>
+        <div class="notif-panel"></div>
+      </div>
+      <a href="cart.html" class="nav-btn">🛒<span class="cart-count">0</span></a>
+      <a href="login.html" class="nav-btn" id="navAuthBtn">👤 Login</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div></nav>
+
+  <div class="page-header"><div class="container"><div class="breadcrumb"><a href="index.html">Home</a> / <a href="cart.html">Cart</a> / Checkout</div><h1>Secure <span>Checkout</span></h1></div></div>
+
+  <div class="container">
+    <div class="checkout-grid">
+      <div>
+        <div class="checkout-form">
+          <h3>📦 Delivery Details</h3>
+          <form id="checkoutForm">
+            <div class="form-row">
+              <div class="form-group"><label>Full Name</label><input type="text" id="coName" required></div>
+              <div class="form-group"><label>Phone Number</label><input type="tel" id="coPhone" required></div>
+            </div>
+            <div class="form-group"><label>Address</label><input type="text" id="coAddress" placeholder="House No, Street, Locality" required></div>
+            <div class="form-row">
+              <div class="form-group"><label>City</label><input type="text" id="coCity" value="Deoghar" required></div>
+              <div class="form-group"><label>Pincode</label><input type="text" id="coPincode" required></div>
+            </div>
+            <h3 style="margin-top:24px">💳 Payment Method</h3>
+            <div class="payment-options">
+              <label class="payment-opt active"><input type="radio" name="payment" value="cod" checked> 💵 Cash on Delivery</label>
+              <label class="payment-opt"><input type="radio" name="payment" value="upi"> 📱 UPI Payment</label>
+              <label class="payment-opt"><input type="radio" name="payment" value="card"> 💳 Credit / Debit Card</label>
+              <label class="payment-opt"><input type="radio" name="payment" value="netbanking"> 🏦 Net Banking</label>
+            </div>
+            <!-- UPI Form -->
+            <div id="upiForm" style="display:none;margin-top:12px"><div class="form-group"><label>UPI ID</label><input type="text" placeholder="yourname@upi"></div></div>
+            <!-- Card Form -->
+            <div id="cardForm" style="display:none;margin-top:12px">
+              <div class="form-group"><label>Card Number</label><input type="text" placeholder="1234 5678 9012 3456" maxlength="19"></div>
+              <div class="form-row"><div class="form-group"><label>Expiry</label><input type="text" placeholder="MM/YY" maxlength="5"></div><div class="form-group"><label>CVV</label><input type="password" placeholder="***" maxlength="3"></div></div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:20px;padding:16px">🔒 Place Order</button>
+          </form>
+        </div>
+      </div>
+      <div>
+        <div class="cart-summary">
+          <h3>Order Summary</h3>
+          <div id="orderItems"></div>
+          <div id="orderTotal" style="margin-top:16px"></div>
+        </div>
+        <!-- Delivery Tracking Preview -->
+        <div style="background:var(--bg3);border:1px solid rgba(212,168,83,.06);border-radius:12px;padding:24px;margin-top:16px">
+          <h4 style="color:var(--gold);margin-bottom:16px">📍 Delivery Timeline</h4>
+          <div class="track-steps">
+            <div class="track-step done"><div class="step-dot">✓</div><p>Order Placed</p></div>
+            <div class="track-step"><div class="step-dot">📦</div><p>Packed</p></div>
+            <div class="track-step"><div class="step-dot">🚚</div><p>Shipped</p></div>
+            <div class="track-step"><div class="step-dot">🏠</div><p>Delivered</p></div>
+          </div>
+          <p style="font-size:.82rem;color:var(--text3);margin-top:12px">Estimated delivery: 3-5 business days</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDER SUCCESS MODAL -->
+  <div id="successModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px">
+    <div style="background:var(--bg2);border:1px solid rgba(212,168,83,.15);border-radius:20px;padding:48px;text-align:center;max-width:480px;width:100%">
+      <div style="font-size:4rem;margin-bottom:16px">🎉</div>
+      <h2 style="margin-bottom:8px">Order Placed Successfully!</h2>
+      <p style="color:var(--text2);margin-bottom:8px" id="orderIdDisplay"></p>
+      <p style="color:var(--text3);font-size:.9rem;margin-bottom:24px">Thank you for shopping with Parasmani Enterprises. You'll receive a confirmation shortly.</p>
+      <div style="display:flex;gap:12px;justify-content:center">
+        <a href="index.html" class="btn btn-primary">🏠 Home</a>
+        <a href="products.html" class="btn btn-outline">🛒 Continue Shopping</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer"><div class="container"><div class="footer-bottom"><p>© 2026 Parasmani Enterprises.</p></div></div></footer>
+
+  <!-- LIVE CHAT WIDGET -->
+  <div class="chat-widget">
+    <button class="chat-toggle">💬<span class="chat-dot"></span></button>
+    <div class="chat-box">
+      <div class="chat-box-header">Parasmani Support <button onclick="document.querySelector('.chat-box').classList.remove('show')">✕</button></div>
+      <div class="chat-messages"></div>
+      <div class="chat-input">
+        <input type="text" placeholder="Type a message...">
+        <button class="chat-send">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // LOGIN GATE — must be signed in as customer
+      const u = getCurrentUser();
+      if (!u || u.role !== 'customer') {
+        location.href = 'login.html?redirect=checkout';
+        return;
+      }
+      const cart = DB.get('cart',[]), products = DB.get('products',[]);
+      if (cart.length === 0) { location.href = 'cart.html'; return; }
+      // Order items
+      let subtotal = 0;
+      document.getElementById('orderItems').innerHTML = cart.map(item => {
+        const p = products.find(pp=>pp.id===item.id); if(!p) return '';
+        subtotal += p.price * item.qty;
+        return `<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:.88rem;border-bottom:1px solid rgba(255,255,255,.04)"><span>${p.name} × ${item.qty}</span><span>${formatPrice(p.price*item.qty)}</span></div>`;
+      }).join('');
+      const total = DB.get('cart_total', subtotal);
+      document.getElementById('orderTotal').innerHTML = `<div class="summary-row"><span>Delivery</span><span style="color:var(--green)">FREE</span></div><div class="summary-row total"><span>Total</span><span>${formatPrice(total)}</span></div>`;
+      // Payment toggle
+      document.querySelectorAll('input[name=payment]').forEach(r => r.addEventListener('change', () => {
+        document.querySelectorAll('.payment-opt').forEach(o=>o.classList.remove('active'));
+        r.closest('.payment-opt').classList.add('active');
+        document.getElementById('upiForm').style.display=r.value==='upi'?'block':'none';
+        document.getElementById('cardForm').style.display=r.value==='card'?'block':'none';
+      }));
+      // Auto-fill from logged-in user profile
+      const users = DB.get('users', []);
+      const profile = users.find(us => us.email === u.email || us.username === u.username);
+      if (profile) {
+        document.getElementById('coName').value = profile.name || u.name || '';
+        document.getElementById('coPhone').value = profile.phone || u.phone || '';
+        document.getElementById('coAddress').value = profile.address || '';
+        document.getElementById('coCity').value = profile.city || 'Deoghar';
+        document.getElementById('coPincode').value = profile.pincode || '';
+      } else {
+        document.getElementById('coName').value = u.name || '';
+        document.getElementById('coPhone').value = u.phone || '';
+      }
+      // Submit — save order AND update customer profile
+      document.getElementById('checkoutForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const custName = document.getElementById('coName').value;
+        const custPhone = document.getElementById('coPhone').value;
+        const custAddress = document.getElementById('coAddress').value;
+        const custCity = document.getElementById('coCity').value;
+        const custPincode = document.getElementById('coPincode').value;
+        const orderId = 'PE-' + Date.now().toString().slice(-8);
+        const order = {
+          id: orderId, date: new Date().toISOString(),
+          customer: { name: custName, phone: custPhone, email: u.email || '', address: custAddress, city: custCity, pincode: custPincode },
+          items: cart.map(i => { const p = products.find(pp=>pp.id===i.id); return { id:i.id, name:p?.name, price:p?.price, qty:i.qty }; }),
+          total, payment: document.querySelector('input[name=payment]:checked').value,
+          status: 'confirmed'
+        };
+        const orders = DB.get('orders', []); orders.push(order); DB.set('orders', orders);
+        // Update customer profile in users DB with latest address and order count
+        let allUsers = DB.get('users', []);
+        const idx = allUsers.findIndex(us => us.email === u.email || us.username === u.username);
+        if (idx !== -1) {
+          allUsers[idx].address = custAddress;
+          allUsers[idx].city = custCity;
+          allUsers[idx].pincode = custPincode;
+          allUsers[idx].phone = custPhone;
+          allUsers[idx].totalOrders = (allUsers[idx].totalOrders || 0) + 1;
+          allUsers[idx].totalSpent = (allUsers[idx].totalSpent || 0) + total;
+          allUsers[idx].lastOrderDate = new Date().toISOString();
+          allUsers[idx].lastOrderId = orderId;
+          DB.set('users', allUsers);
+        }
+        DB.set('cart', []); updateCartBadge();
+        logActivity('Order placed: ' + orderId + ' by ' + custName);
+        document.getElementById('orderIdDisplay').textContent = 'Order ID: ' + orderId;
+        const m = document.getElementById('successModal'); m.style.display = 'flex';
+      });
+    });
+  </script>
+</body>
+</html>

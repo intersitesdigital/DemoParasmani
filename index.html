@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parasmani Enterprises — Premium Electronics & Smart Lighting | Deoghar</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0a0c10">
+  <meta name="description" content="Parasmani Enterprises — Your trusted electronics & lighting showroom in Deoghar. TVs, ACs, smart lights, home appliances & more. Shop premium brands.">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="container nav-inner">
+      <a href="index.html" class="nav-logo"><div class="logo-icon">⚡</div><div>Parasmani <span>Enterprises</span></div></a>
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="smartSearch" placeholder="Search TVs, ACs, lights, appliances...">
+        <div id="searchSuggestions"></div>
+      </div>
+      <div class="nav-actions">
+        <!-- Language Toggle -->
+        <div class="lang-toggle">
+          <button data-lang="en">EN</button>
+          <button data-lang="hi">HI</button>
+        </div>
+        <button id="darkModeToggle" class="nav-btn" title="Toggle Theme">☀️</button>
+        <!-- Notifications -->
+        <div class="notif-btn nav-btn">
+          🔔<span class="notif-badge">0</span>
+          <div class="notif-panel"></div>
+        </div>
+        <a href="cart.html" class="nav-btn">🛒<span class="cart-count">0</span></a>
+        <a href="login.html" class="nav-btn" id="navAuthBtn">👤 Login</a>
+        <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html">🏠 Home</a><a href="about.html">ℹ️ About</a><a href="products.html">📦 Products</a>
+    <a href="cart.html">🛒 Cart</a><a href="login.html">👤 Login</a>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"><img src="images/hero-showroom.png" alt="Parasmani Enterprises Showroom" loading="eager"></div>
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-badge"><span class="dot"></span> Authorized Philips Franchise — Deoghar</div>
+        <h1>Your One-Stop <span class="hl">Electronics & Lighting</span> Destination</h1>
+        <p>Discover TVs, ACs, smart lighting, refrigerators, washing machines & more. Premium brands, best prices, genuine warranty.</p>
+        <div class="hero-btns">
+          <a href="products.html" class="btn btn-primary">🛒 Shop Now</a>
+          <a href="https://wa.me/919876543210" target="_blank" class="btn btn-whatsapp">💬 WhatsApp</a>
+          <a href="about.html" class="btn btn-outline">About Us</a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat"><h3 id="sc1">5000+</h3><p>Happy Customers</p></div>
+          <div class="stat"><h3>1000+</h3><p>Products</p></div>
+          <div class="stat"><h3>80%</h3><p>Energy Savings</p></div>
+          <div class="stat"><h3>10+</h3><p>Years Trust</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORIES -->
+  <section class="section" id="categories">
+    <div class="container">
+      <div class="text-center"><div class="section-badge">✦ Categories</div>
+        <h2 class="section-title">Shop By <span>Category</span></h2>
+        <p class="section-sub mx-auto">Explore our wide range of electronics and lighting products</p>
+      </div>
+      <div class="cat-grid" id="catGrid"></div>
+    </div>
+  </section>
+
+  <!-- FEATURED PRODUCTS -->
+  <section class="section" style="background:var(--bg2)">
+    <div class="container">
+      <div class="text-center"><div class="section-badge">✦ Featured</div>
+        <h2 class="section-title">Top Selling <span>Products</span></h2>
+        <p class="section-sub mx-auto">Our most popular products loved by thousands of customers</p>
+      </div>
+      <div class="products-grid" id="featuredGrid"></div>
+      <div style="text-align:center;margin-top:32px"><a href="products.html" class="btn btn-outline">View All Products →</a></div>
+    </div>
+  </section>
+
+  <!-- OFFERS CAROUSEL -->
+  <section class="section" style="padding-top:20px">
+    <div class="container">
+      <div class="offers-carousel">
+        <div class="carousel-track" id="offersTrack">
+          <!-- Slide 1 -->
+          <div class="carousel-slide carousel-s1" style="display:flex;align-items:center;justify-content:space-between">
+            <div style="z-index:1;position:relative"><div class="section-badge" style="border-color:transparent">🔥 Summer Sale</div><h2>Up to <span style="color:var(--gold)">40% OFF</span> on ACs & Fans</h2><p>Beat the heat with premium air conditioners and BLDC fans.</p><a href="products.html?cat=ac" class="btn btn-primary" style="margin-top:16px">Shop ACs →</a></div>
+            <div style="font-size:5rem;z-index:1;position:relative">❄️</div>
+          </div>
+          <!-- Slide 2 -->
+          <div class="carousel-slide carousel-s2" style="display:flex;align-items:center;justify-content:space-between">
+            <div style="z-index:1;position:relative"><div class="section-badge" style="border-color:transparent">🎉 Welcome Offer</div><h2>Flat <span style="color:var(--gold)">10% OFF</span> First Order</h2><p>Use code <strong>WELCOME10</strong> at checkout on all products.</p><a href="products.html" class="btn btn-primary" style="margin-top:16px">Shop Now →</a></div>
+            <div style="font-size:5rem;z-index:1;position:relative">🎁</div>
+          </div>
+          <!-- Slide 3 -->
+          <div class="carousel-slide carousel-s3" style="display:flex;align-items:center;justify-content:space-between">
+            <div style="z-index:1;position:relative"><div class="section-badge" style="border-color:transparent">💡 Smart Home</div><h2>Upgrade Your <span style="color:var(--gold)">Lighting</span></h2><p>Wi-Fi enabled Philips smart bulbs and strips.</p><a href="products.html?cat=smart-lighting" class="btn btn-primary" style="margin-top:16px">Explore Lights →</a></div>
+            <div style="font-size:5rem;z-index:1;position:relative">📱</div>
+          </div>
+        </div>
+        <div class="carousel-arrows"><button id="csPrev">❮</button><button id="csNext">❯</button></div>
+        <div class="carousel-dots"><span class="active" data-i="0"></span><span data-i="1"></span><span data-i="2"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BRANDS -->
+  <section class="section" style="background:var(--bg2)">
+    <div class="container">
+      <div class="text-center"><div class="section-badge">✦ Trusted Brands</div>
+        <h2 class="section-title">Brands We <span>Carry</span></h2>
+        <p class="section-sub mx-auto">Only genuine products from India's most trusted brands</p>
+      </div>
+      <div class="brands-row">
+        <div class="brand-item">Philips</div><div class="brand-item">Samsung</div><div class="brand-item">LG</div>
+        <div class="brand-item">Daikin</div><div class="brand-item">Sony</div><div class="brand-item">Havells</div>
+        <div class="brand-item">Crompton</div><div class="brand-item">Whirlpool</div><div class="brand-item">Prestige</div>
+        <div class="brand-item">Kent</div><div class="brand-item">Orient</div><div class="brand-item">Bajaj</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="section">
+    <div class="container">
+      <div class="text-center"><div class="section-badge">✦ Testimonials</div>
+        <h2 class="section-title">What Customers <span>Say</span></h2>
+        <p class="section-sub mx-auto">Trusted by thousands of happy customers across Deoghar</p>
+      </div>
+      <div class="test-grid" id="testGrid"></div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="nav-logo"><div class="logo-icon">⚡</div><div>Parasmani <span>Enterprises</span></div></a>
+          <p>Your trusted electronics & lighting showroom in Deoghar. Premium brands, genuine warranty, best prices.</p>
+          <div class="footer-social"><a href="#">📘</a><a href="#">📸</a><a href="#">🎬</a><a href="https://wa.me/919876543210">💬</a></div>
+        </div>
+        <div class="footer-col"><h4>Quick Links</h4><a href="index.html">Home</a><a href="about.html">About</a><a href="products.html">Products</a><a href="cart.html">Cart</a><a href="login.html">Login</a></div>
+        <div class="footer-col"><h4>Categories</h4><a href="products.html?cat=tv">Television</a><a href="products.html?cat=ac">Air Conditioner</a><a href="products.html?cat=smart-lighting">Smart Lighting</a><a href="products.html?cat=refrigerator">Refrigerator</a><a href="products.html?cat=fans">Fans</a></div>
+        <div class="footer-col"><h4>Contact</h4><a href="tel:+919876543210">📞 +91 98765 43210</a><a href="https://wa.me/919876543210">💬 WhatsApp</a><a href="mailto:info@parasmani-enterprises.com">📧 Email</a><a href="#">📍 Deoghar, Jharkhand</a></div>
+      </div>
+      <div class="footer-bottom"><p>© 2026 Parasmani Enterprises. All Rights Reserved.</p></div>
+    </div>
+  </footer>
+  <a href="https://wa.me/919876543210" target="_blank" class="wa-float">💬</a>
+  
+  <!-- LIVE CHAT WIDGET -->
+  <div class="chat-widget">
+    <button class="chat-toggle">💬<span class="chat-dot"></span></button>
+    <div class="chat-box">
+      <div class="chat-box-header">Parasmani Support <button onclick="document.querySelector('.chat-box').classList.remove('show')">✕</button></div>
+      <div class="chat-messages"></div>
+      <div class="chat-input">
+        <input type="text" placeholder="Type a message...">
+        <button class="chat-send">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Navbar scroll
+      window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('scrolled', scrollY > 50));
+      // Mobile menu
+      const hb = document.getElementById('hamburger'), mm = document.getElementById('mobileMenu'), mo = document.getElementById('mobileOverlay');
+      const toggle = () => { mm.classList.toggle('active'); mo.classList.toggle('active'); };
+      hb?.addEventListener('click', toggle); mo?.addEventListener('click', toggle);
+      // Auth btn
+      const u = getCurrentUser();
+      const ab = document.getElementById('navAuthBtn');
+      if (u && ab) { ab.textContent = '👤 ' + (u.name || u.username); ab.href = u.role === 'admin' ? 'admin-dashboard.html' : u.role === 'staff' ? 'staff-dashboard.html' : '#'; }
+      // Skeleton Loading Simulation
+      const cg = document.getElementById('catGrid');
+      const fg = document.getElementById('featuredGrid');
+      if (cg) renderSkeletons(cg, 10);
+      if (fg) renderSkeletons(fg, 8);
+      
+      setTimeout(() => {
+        if (cg) cg.innerHTML = CATEGORIES.map(c => `<a href="products.html?cat=${c.id}" class="cat-card"><div class="cat-icon">${c.icon}</div><h4>${c.name}</h4></a>`).join('');
+        const products = DB.get('products', []);
+        const featured = products.sort((a,b) => b.rating - a.rating).slice(0, 8);
+        if (fg) fg.innerHTML = featured.map(p => renderProductCard(p)).join('');
+      }, 500); // simulate network delay
+
+      // Testimonials
+      const testimonials = DB.get('testimonials', DEFAULT_TESTIMONIALS);
+      const tg = document.getElementById('testGrid');
+      if (tg) tg.innerHTML = testimonials.map(t => `<div class="test-card"><div class="stars">${'★'.repeat(t.stars)}</div><p>"${t.text}"</p><div class="author"><div class="avatar">${t.name[0]}</div><div><h4>${t.name}</h4><span>${t.role}</span></div></div></div>`).join('');
+      
+      // Carousel logic
+      const track = document.getElementById('offersTrack');
+      if (track) {
+        let ci = 0; const dots = document.querySelectorAll('.carousel-dots span');
+        const goTo = (i) => { ci = (i+3)%3; track.style.transform = `translateX(-${ci*100}%)`; dots.forEach((d,x) => d.classList.toggle('active', x===ci)); };
+        document.getElementById('csNext').addEventListener('click', () => goTo(ci+1));
+        document.getElementById('csPrev').addEventListener('click', () => goTo(ci-1));
+        dots.forEach((d,i) => d.addEventListener('click', () => goTo(i)));
+        setInterval(() => goTo(ci+1), 5000);
+      }
+    });
+  </script>
+</body>
+</html>

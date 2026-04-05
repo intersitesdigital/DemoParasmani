@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — Parasmani ERP</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .admin-layout{display:flex;min-height:100vh}
+    .sidebar{width:240px;background:var(--bg2);border-right:1px solid rgba(212,168,83,.1);padding:20px 0;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto;display:flex;flex-direction:column}
+    .sidebar .s-logo{padding:0 16px 20px;display:flex;align-items:center;gap:8px;font-weight:700;font-size:.95rem}.sidebar .s-logo .s-icon{width:34px;height:34px;border-radius:8px;background:var(--g-gold);display:flex;align-items:center;justify-content:center;font-size:.9rem}.sidebar .s-logo span{color:var(--gold)}
+    .s-nav{flex:1;padding:0 8px}.s-nav a{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;color:var(--text2);font-size:.85rem;font-weight:500;transition:var(--tr);margin-bottom:2px}.s-nav a:hover{background:rgba(212,168,83,.06);color:var(--text)}.s-nav a.active{background:rgba(212,168,83,.12);color:var(--gold)}.s-nav .icon{font-size:1rem;width:22px;text-align:center}
+    .s-bottom{padding:12px 16px;border-top:1px solid rgba(212,168,83,.1)}.s-bottom a{display:flex;align-items:center;gap:8px;color:var(--text3);font-size:.82rem;padding:6px 0;transition:var(--tr)}.s-bottom a:hover{color:var(--gold)}
+    .admin-main{flex:1;margin-left:240px;padding:24px;min-height:100vh}
+    .admin-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}.admin-header h1{font-size:1.4rem;font-weight:700}.admin-header h1 span{color:var(--gold)}
+    .a-page{display:none}.a-page.active{display:block}
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+    .stat-card{background:var(--bg3);border:1px solid rgba(212,168,83,.06);border-radius:var(--r);padding:20px;transition:var(--tr)}.stat-card:hover{border-color:rgba(212,168,83,.15)}
+    .stat-card .si{font-size:1.4rem;margin-bottom:8px}.stat-card .sv{font-size:1.8rem;font-weight:700;color:var(--gold)}.stat-card .sl{font-size:.8rem;color:var(--text3);margin-top:2px}
+    .data-table{background:var(--bg3);border:1px solid rgba(212,168,83,.06);border-radius:var(--r);overflow:hidden}
+    .dt-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid rgba(212,168,83,.06)}.dt-header h3{font-size:.95rem}
+    table{width:100%;border-collapse:collapse}thead th{padding:10px 14px;text-align:left;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--text3);border-bottom:1px solid rgba(212,168,83,.06);font-weight:600}
+    tbody td{padding:12px 14px;font-size:.85rem;color:var(--text2);border-bottom:1px solid rgba(255,255,255,.02)}tbody tr:hover{background:rgba(212,168,83,.02)}
+    .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:600}
+    .badge-gold{background:rgba(212,168,83,.15);color:var(--gold)}.badge-green{background:rgba(37,211,102,.15);color:var(--green)}.badge-red{background:rgba(231,76,60,.15);color:var(--red)}.badge-blue{background:rgba(59,130,246,.15);color:var(--blue)}
+    .btn-sm{padding:6px 13px;border-radius:6px;font-size:.78rem;font-weight:600;transition:var(--tr);display:inline-flex;align-items:center;gap:4px}
+    .btn-edit{background:transparent;color:var(--gold);border:1px solid rgba(212,168,83,.2)}.btn-edit:hover{background:rgba(212,168,83,.08)}
+    .btn-del{background:transparent;color:var(--red);border:1px solid rgba(231,76,60,.2)}.btn-del:hover{background:rgba(231,76,60,.08)}
+    .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:2000;padding:20px}
+    .modal-bg.active{display:flex}.modal-box{background:var(--bg2);border:1px solid rgba(212,168,83,.15);border-radius:14px;padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+    .modal-box h3{font-size:1.1rem;margin-bottom:16px}.modal-box .form-group{margin-bottom:12px}.modal-box label{display:block;font-size:.82rem;color:var(--text2);margin-bottom:4px;font-weight:500}
+    .modal-box input,.modal-box textarea,.modal-box select{width:100%;padding:9px 12px;border-radius:6px;border:1px solid rgba(212,168,83,.15);background:rgba(10,10,15,.6);color:var(--text);font-family:var(--font);font-size:.88rem;outline:none}
+    .modal-box input:focus,.modal-box select:focus{border-color:var(--gold)}.modal-box select option{background:var(--bg2)}
+    .modal-actions{display:flex;gap:10px;margin-top:16px;justify-content:flex-end}
+    .btn-cancel{padding:9px 18px;border-radius:6px;background:var(--bg3);color:var(--text2);font-size:.88rem}
+    .btn-save{padding:9px 18px;border-radius:6px;background:var(--g-gold);color:var(--bg);font-weight:600;font-size:.88rem}
+    .chart-box{background:var(--bg3);border:1px solid rgba(212,168,83,.06);border-radius:var(--r);padding:20px;margin-bottom:20px}
+    .chart-box h4{font-size:.9rem;color:var(--gold);margin-bottom:12px}
+    .bar-chart{display:flex;align-items:flex-end;gap:8px;height:160px;padding-top:10px}
+    .bar{flex:1;background:var(--g-gold);border-radius:4px 4px 0 0;min-height:8px;transition:var(--tr);position:relative}
+    .bar:hover{opacity:.8}.bar-label{position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);font-size:.65rem;color:var(--text3);white-space:nowrap}
+    .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .settings-card{background:var(--bg3);border:1px solid rgba(212,168,83,.06);border-radius:var(--r);padding:24px}
+    .settings-card h3{font-size:.95rem;margin-bottom:14px;color:var(--gold)}
+    .alert-card{background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.2);border-radius:8px;padding:12px 16px;margin-bottom:8px;font-size:.85rem;display:flex;align-items:center;gap:8px}
+    @media(max-width:768px){.sidebar{width:56px}.sidebar span:not(.icon){display:none}.s-nav a{justify-content:center;padding:10px}.admin-main{margin-left:56px;padding:16px}.stats-row{grid-template-columns:1fr 1fr}.settings-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="s-logo"><div class="s-icon">⚡</div><span>Parasmani <span>ERP</span></span></div>
+      <nav class="s-nav">
+        <a href="#" class="active" data-p="dashboard"><span class="icon">📊</span><span>Dashboard</span></a>
+        <a href="#" data-p="products"><span class="icon">📦</span><span>Products</span></a>
+        <a href="#" data-p="inventory"><span class="icon">📋</span><span>Inventory</span></a>
+        <a href="#" data-p="orders"><span class="icon">🛍️</span><span>Orders</span></a>
+        <a href="#" data-p="returns"><span class="icon">🔄</span><span>Returns</span></a>
+        <a href="#" data-p="customers"><span class="icon">🧑‍🤝‍🧑</span><span>Customers</span></a>
+        <a href="#" data-p="staff"><span class="icon">👥</span><span>Staff</span></a>
+        <a href="#" data-p="rfid"><span class="icon">🪪</span><span>RFID</span></a>
+        <a href="#" data-p="payroll"><span class="icon">💰</span><span>Payroll</span></a>
+        <a href="#" data-p="sales"><span class="icon">📈</span><span>Sales</span></a>
+        <a href="#" data-p="expenses"><span class="icon">📉</span><span>Expenses</span></a>
+        <a href="#" data-p="reports"><span class="icon">📊</span><span>Reports</span></a>
+        <a href="#" data-p="vendors"><span class="icon">🏭</span><span>Vendors</span></a>
+        <a href="#" data-p="coupons"><span class="icon">🎟️</span><span>Coupons</span></a>
+        <a href="#" data-p="settings"><span class="icon">⚙️</span><span>Settings</span></a>
+      </nav>
+      <div class="s-bottom"><a href="index.html"><span class="icon">🌐</span><span>View Site</span></a><a href="#" id="logoutBtn"><span class="icon">🚪</span><span>Logout</span></a></div>
+    </aside>
+    <main class="admin-main">
+      <!-- DASHBOARD -->
+      <div class="a-page active" id="pg-dashboard">
+        <div class="admin-header"><h1>📊 <span>Dashboard</span></h1></div>
+        <div class="stats-row" id="dashStats"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="chart-box"><h4>📈 Sales This Week</h4><div class="bar-chart" id="salesChart"></div></div>
+          <div class="data-table"><div class="dt-header"><h3>🔔 Low Stock Alerts</h3></div><div id="lowStockAlerts"></div></div>
+        </div>
+        <div class="data-table" style="margin-top:16px"><div class="dt-header"><h3>🛍️ Recent Orders</h3></div><table><thead><tr><th>ID</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead><tbody id="recentOrders"></tbody></table></div>
+        <div class="data-table" style="margin-top:16px"><div class="dt-header"><h3>💡 Offer Predictions</h3></div><div id="offerPredictions" style="padding:16px"></div></div>
+      </div>
+      <!-- PRODUCTS -->
+      <div class="a-page" id="pg-products">
+        <div class="admin-header"><h1>📦 <span>Products</span></h1><button class="btn btn-primary" onclick="openModal('prodModal');document.getElementById('pmTitle').textContent='Add Product';document.getElementById('prodForm').reset();document.getElementById('prodEditId').value=''">+ Add Product</button></div>
+        <div class="data-table"><table><thead><tr><th>Img</th><th>Name</th><th>Category</th><th>Brand</th><th>Price</th><th>Stock</th><th>Actions</th></tr></thead><tbody id="prodTable"></tbody></table></div>
+      </div>
+      <!-- INVENTORY -->
+      <div class="a-page" id="pg-inventory">
+        <div class="admin-header"><h1>📋 <span>Inventory</span></h1></div>
+        <div class="data-table"><table><thead><tr><th>Product</th><th>Category</th><th>Stock</th><th>Status</th><th>Update</th></tr></thead><tbody id="invTable"></tbody></table></div>
+      </div>
+      <!-- ORDERS -->
+      <div class="a-page" id="pg-orders">
+        <div class="admin-header"><h1>🛍️ <span>Orders</span></h1></div>
+        <div class="data-table"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ordTable"></tbody></table></div>
+      </div>
+      <!-- RETURNS -->
+      <div class="a-page" id="pg-returns">
+        <div class="admin-header"><h1>🔄 <span>Returns & Refunds</span></h1></div>
+        <div class="data-table"><table><thead><tr><th>Return ID</th><th>Order ID</th><th>Customer</th><th>Reason</th><th>Status</th><th>Actions</th></tr></thead><tbody id="returnTable"></tbody></table></div>
+      </div>
+      <!-- CUSTOMERS -->
+      <div class="a-page" id="pg-customers">
+        <div class="admin-header"><h1>🧑‍🤝‍🧑 <span>Customers</span></h1><button class="btn btn-whatsapp" onclick="sendBulkOffer()">📱 Bulk Offer WhatsApp</button></div>
+        <div class="stats-row" id="custStats"></div>
+        <div class="data-table">
+          <div class="dt-header"><h3>All Registered Customers</h3><span id="custCount" style="font-size:.82rem;color:var(--text3)"></span></div>
+          <table><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Segment</th><th>Address</th><th>Orders</th><th>Spent</th><th>Last Order</th><th>Actions</th></tr></thead>
+          <tbody id="custTable"></tbody></table>
+        </div>
+      </div>
+      <!-- STAFF -->
+      <div class="a-page" id="pg-staff">
+        <div class="admin-header"><h1>👥 <span>Staff & Shifts</span></h1><button class="btn btn-primary" onclick="openStaffModal()">+ Add Staff</button></div>
+        <div class="data-table"><table><thead><tr><th>EmpID</th><th>Name</th><th>Role</th><th>Shift</th><th>Salary</th><th>Performance</th><th>Actions</th></tr></thead><tbody id="staffTable"></tbody></table></div>
+        
+        <div class="admin-header" style="margin-top:40px"><h2>📋 <span>Leave Requests</span></h2></div>
+        <div class="data-table"><table><thead><tr><th>Staff</th><th>Type</th><th>Dates</th><th>Reason</th><th>Status</th><th>Actions</th></tr></thead><tbody id="leaveTable"></tbody></table></div>
+      </div>
+      <!-- RFID -->
+      <div class="a-page" id="pg-rfid">
+        <div class="admin-header"><h1>🪪 <span>RFID Attendance</span></h1></div>
+        <div style="background:var(--bg3);border:1px solid rgba(212,168,83,.1);border-radius:12px;padding:24px;max-width:400px;margin-bottom:20px">
+          <h4 style="color:var(--gold);margin-bottom:12px">Scan RFID Card</h4>
+          <input type="text" id="rfidInput" placeholder="Enter or scan RFID Card ID" style="width:100%;padding:12px;border-radius:8px;border:1px solid rgba(212,168,83,.15);background:var(--bg);color:var(--text);font-size:1rem;outline:none" autofocus>
+          <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:12px" onclick="scanRFID()">📡 Scan</button>
+          <div id="rfidResult" style="margin-top:12px;font-size:.9rem"></div>
+        </div>
+        <div class="data-table"><div class="dt-header"><h3>Today's Attendance</h3></div><table><thead><tr><th>Employee</th><th>RFID</th><th>Check In</th><th>Check Out</th><th>Hours</th></tr></thead><tbody id="attTable"></tbody></table></div>
+      </div>
+      <!-- PAYROLL -->
+      <div class="a-page" id="pg-payroll">
+        <div class="admin-header"><h1>💰 <span>Payroll</span></h1></div>
+        <div class="form-group" style="max-width:200px;margin-bottom:16px"><select id="payrollMonth" style="padding:10px;border-radius:8px;border:1px solid rgba(212,168,83,.15);background:var(--bg);color:var(--text);width:100%" onchange="renderPayroll()"><option value="all">All Time</option></select></div>
+        <div class="data-table"><table><thead><tr><th>Employee</th><th>Type</th><th>Days</th><th>Hours</th><th>Overtime</th><th>Net Salary</th></tr></thead><tbody id="payTable"></tbody></table></div>
+      </div>
+      <!-- SALES -->
+      <div class="a-page" id="pg-sales">
+        <div class="admin-header"><h1>📈 <span>Sales</span></h1></div>
+        <div class="stats-row" id="salesStats"></div>
+        <div class="chart-box"><h4>Monthly Revenue</h4><div class="bar-chart" id="revenueChart" style="height:200px"></div></div>
+        <div class="data-table"><div class="dt-header"><h3>Top Products</h3></div><table><thead><tr><th>Product</th><th>Units Sold</th><th>Revenue</th></tr></thead><tbody id="topProducts"></tbody></table></div>
+      </div>
+      <!-- EXPENSES -->
+      <div class="a-page" id="pg-expenses">
+        <div class="admin-header"><h1>📉 <span>Expenses</span></h1><button class="btn btn-primary" onclick="openModal('expenseModal');document.getElementById('expenseForm').reset()">+ Add Expense</button></div>
+        <div class="stats-row" id="expStats"></div>
+        <div class="data-table"><table><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Actions</th></tr></thead><tbody id="expenseTable"></tbody></table></div>
+      </div>
+      <!-- REPORTS -->
+      <div class="a-page" id="pg-reports">
+        <div class="admin-header"><h1>📊 <span>Reports</span></h1></div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px">
+          <div class="settings-card" style="cursor:pointer" onclick="generateReport('attendance')"><h3>📋 Attendance Report</h3><p style="color:var(--text3);font-size:.85rem">Staff attendance summary</p></div>
+          <div class="settings-card" style="cursor:pointer" onclick="generateReport('payroll')"><h3>💰 Payroll Report</h3><p style="color:var(--text3);font-size:.85rem">Salary calculations</p></div>
+          <div class="settings-card" style="cursor:pointer" onclick="generateReport('sales')"><h3>📈 Sales Report</h3><p style="color:var(--text3);font-size:.85rem">Revenue & orders</p></div>
+          <div class="settings-card" style="cursor:pointer" onclick="generateReport('inventory')"><h3>📦 Inventory Report</h3><p style="color:var(--text3);font-size:.85rem">Stock levels & alerts</p></div>
+        </div>
+        <div id="reportOutput" style="margin-top:20px"></div>
+      </div>
+      <!-- VENDORS -->
+      <div class="a-page" id="pg-vendors">
+        <div class="admin-header"><h1>🏭 <span>Vendors</span></h1><button class="btn btn-primary" onclick="openModal('vendorModal');document.getElementById('vendorForm').reset()">+ Add Vendor</button></div>
+        <div class="data-table"><table><thead><tr><th>Name</th><th>Contact</th><th>Products</th><th>Email</th><th>Actions</th></tr></thead><tbody id="vendorTable"></tbody></table></div>
+      </div>
+      <!-- COUPONS -->
+      <div class="a-page" id="pg-coupons">
+        <div class="admin-header"><h1>🎟️ <span>Coupons</span></h1><button class="btn btn-primary" onclick="openModal('couponModal');document.getElementById('couponForm').reset()">+ New Coupon</button></div>
+        <div class="data-table"><table><thead><tr><th>Code</th><th>Discount</th><th>Min Order</th><th>Status</th><th>Actions</th></tr></thead><tbody id="couponTable"></tbody></table></div>
+      </div>
+      <!-- SETTINGS -->
+      <div class="a-page" id="pg-settings">
+        <div class="admin-header"><h1>⚙️ <span>Settings</span></h1></div>
+        <div class="settings-grid">
+          <div class="settings-card"><h3>🔒 Change Password</h3><div class="form-group"><label>Current</label><input type="password" id="sOldP"></div><div class="form-group"><label>New</label><input type="password" id="sNewP"></div><button class="btn btn-primary" onclick="changeAdminPass()">Update</button></div>
+          <div class="settings-card"><h3>📞 Business Info</h3><div class="form-group"><label>Phone</label><input id="sBizPh" value="+91 98765 43210"></div><div class="form-group"><label>Email</label><input id="sBizEm" value="info@parasmani-enterprises.com"></div><div class="form-group"><label>Address</label><input id="sBizAd" value="Main Road, Deoghar"></div><button class="btn btn-primary" onclick="saveBizInfo()">Save</button></div>
+          <div class="settings-card"><h3>💾 Data Backup</h3><p style="color:var(--text3);font-size:.85rem;margin-bottom:12px">Export all data as JSON file</p><button class="btn btn-primary" onclick="exportBackup()">📥 Export Backup</button><input type="file" id="importFile" accept=".json" style="margin-top:12px" onchange="importBackup(this)"><button class="btn btn-outline" style="margin-top:8px" onclick="document.getElementById('importFile').click()">📤 Import</button></div>
+          <div class="settings-card"><h3>📝 Activity Log</h3><div id="activityLog" style="max-height:240px;overflow-y:auto"></div></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- PRODUCT MODAL -->
+  <div class="modal-bg" id="prodModal"><div class="modal-box"><h3 id="pmTitle">Add Product</h3><form id="prodForm"><input type="hidden" id="prodEditId">
+    <div class="form-group"><label>Name</label><input id="pName" required></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="form-group"><label>Category</label><select id="pCat"></select></div><div class="form-group"><label>Brand</label><input id="pBrand" value="Philips"></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px"><div class="form-group"><label>Price (₹)</label><input type="number" id="pPrice" required></div><div class="form-group"><label>MRP (₹)</label><input type="number" id="pMRP"></div><div class="form-group"><label>Stock</label><input type="number" id="pStock" value="20"></div></div>
+    <div class="form-group"><label>Image URL</label><input id="pImg" value="images/product-led.png"></div>
+    <div class="form-group"><label>Description</label><textarea id="pDesc" rows="2"></textarea></div>
+  </form><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('prodModal')">Cancel</button><button class="btn-save" onclick="saveProduct()">Save</button></div></div></div>
+
+  <!-- STAFF MODAL -->
+  <div class="modal-bg" id="staffModal"><div class="modal-box"><h3 id="smTitle">Add Staff</h3><form id="staffForm"><input type="hidden" id="sEditId">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="form-group"><label>Emp ID</label><input id="sEmpId" placeholder="EMP004" required></div><div class="form-group"><label>Name</label><input id="sName" required></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="form-group"><label>Role</label><input id="sRole" placeholder="Sales Executive"></div><div class="form-group"><label>Phone</label><input id="sPhone"></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="form-group"><label>Shift</label><select id="sShift"><option value="morning">Morning (9 AM - 5 PM)</option><option value="evening">Evening (2 PM - 10 PM)</option></select></div><div class="form-group"><label>RFID Card ID</label><input id="sRfid" placeholder="RFID004"></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="form-group"><label>Username</label><input id="sUser" required></div><div class="form-group"><label>Password</label><input id="sPass" required></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px"><div class="form-group"><label>Salary Type</label><select id="sSalType"><option value="monthly">Monthly</option><option value="daily">Daily</option><option value="hourly">Hourly</option></select></div><div class="form-group"><label>Salary (₹)</label><input type="number" id="sSalAmt" required></div><div class="form-group"><label>Hrs/Day</label><input type="number" id="sHrs" value="8"></div></div>
+  </form><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('staffModal')">Cancel</button><button class="btn-save" onclick="saveStaff()">Save</button></div></div></div>
+
+  <!-- EXPENSE MODAL -->
+  <div class="modal-bg" id="expenseModal"><div class="modal-box"><h3>Add Expense</h3><form id="expenseForm">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="form-group"><label>Amount (₹)</label><input type="number" id="exAmt" required></div><div class="form-group"><label>Date</label><input type="date" id="exDate" required></div></div>
+    <div class="form-group"><label>Category</label><select id="exCat"><option>Rent</option><option>Electricity</option><option>Salary Advance</option><option>Marketing</option><option>Maintenance</option><option>Other</option></select></div>
+    <div class="form-group"><label>Description</label><input id="exDesc" required></div>
+  </form><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('expenseModal')">Cancel</button><button class="btn-save" onclick="saveExpense()">Save</button></div></div></div>
+
+  <!-- VENDOR MODAL -->
+  <div class="modal-bg" id="vendorModal"><div class="modal-box"><h3>Add Vendor</h3><form id="vendorForm">
+    <div class="form-group"><label>Name</label><input id="vName" required></div>
+    <div class="form-group"><label>Contact</label><input id="vContact"></div>
+    <div class="form-group"><label>Products Supplied</label><input id="vProducts"></div>
+    <div class="form-group"><label>Email</label><input id="vEmail"></div>
+  </form><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('vendorModal')">Cancel</button><button class="btn-save" onclick="saveVendor()">Save</button></div></div></div>
+
+  <!-- COUPON MODAL -->
+  <div class="modal-bg" id="couponModal"><div class="modal-box"><h3>Create Coupon</h3><form id="couponForm">
+    <div class="form-group"><label>Coupon Code</label><input id="cpCode" required style="text-transform:uppercase"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div class="form-group"><label>Type</label><select id="cpType"><option value="percent">Percentage</option><option value="flat">Flat Amount</option></select></div><div class="form-group"><label>Discount</label><input type="number" id="cpDisc" required></div></div>
+    <div class="form-group"><label>Min Order (₹)</label><input type="number" id="cpMin" value="1000"></div>
+  </form><div class="modal-actions"><button class="btn-cancel" onclick="closeModal('couponModal')">Cancel</button><button class="btn-save" onclick="saveCoupon()">Save</button></div></div></div>
+
+  <!-- REPORT MODAL -->
+  <div class="modal-bg" id="reportModal"><div class="modal-box" style="max-width:800px"><h3 id="repTitle">Report</h3><div id="repContent"></div><div class="modal-actions"><button class="btn-save" onclick="exportReport()">📥 Export CSV</button><button class="btn-cancel" onclick="closeModal('reportModal')">Close</button></div></div></div>
+
+  <div class="toast" id="globalToast"></div>
+
+  <script src="js/app.js"></script>
+  <script>
+  // Auth check
+  document.addEventListener('DOMContentLoaded',()=>{
+    const u=getCurrentUser();if(!u||u.role!=='admin'){location.href='login.html';return}
+    // Init category select
+    document.getElementById('pCat').innerHTML=CATEGORIES.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+    // Nav
+    document.querySelectorAll('.s-nav a').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();switchPage(a.dataset.p)}));
+    document.getElementById('logoutBtn').addEventListener('click',e=>{e.preventDefault();logout()});
+    loadDashboard();
+  });
+  function switchPage(p){document.querySelectorAll('.a-page').forEach(pg=>pg.classList.remove('active'));document.getElementById('pg-'+p)?.classList.add('active');document.querySelectorAll('.s-nav a').forEach(a=>a.classList.toggle('active',a.dataset.p===p));
+    if(p==='dashboard')loadDashboard();if(p==='products')renderProducts();if(p==='inventory')renderInventory();if(p==='orders')renderOrders();if(p==='returns')renderReturns();if(p==='customers')renderCustomers();if(p==='staff')renderStaff();if(p==='rfid')renderAttendance();if(p==='payroll')renderPayroll();if(p==='sales')renderSales();if(p==='expenses')renderExpenses();if(p==='vendors')renderVendors();if(p==='coupons')renderCoupons();if(p==='settings')loadSettings();}
+  function openModal(id){document.getElementById(id).classList.add('active')}
+  function closeModal(id){document.getElementById(id).classList.remove('active')}
+  // DASHBOARD
+  function loadDashboard(){
+    const p=DB.get('products',[]),o=DB.get('orders',[]),s=DB.get('staff',[]),a=DB.get('attendance',[]),cu=DB.get('users',[]);
+    const rev=o.reduce((s,or)=>s+(or.total||0),0);
+    document.getElementById('dashStats').innerHTML=`<div class="stat-card"><div class="si">📦</div><div class="sv">${p.length}</div><div class="sl">Products</div></div><div class="stat-card"><div class="si">🛍️</div><div class="sv">${o.length}</div><div class="sl">Orders</div></div><div class="stat-card"><div class="si">💰</div><div class="sv">${formatPrice(rev)}</div><div class="sl">Revenue</div></div><div class="stat-card"><div class="si">🧑‍🤝‍🧑</div><div class="sv">${cu.length}</div><div class="sl">Customers</div></div>`;
+    // Sales chart
+    const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];const vals=[12000,18000,8000,22000,15000,28000,20000];const max=Math.max(...vals);
+    document.getElementById('salesChart').innerHTML=vals.map((v,i)=>`<div class="bar" style="height:${(v/max)*100}%"><div class="bar-label">${days[i]}</div></div>`).join('');
+    // Low stock
+    const low=p.filter(pr=>pr.stock<=10);
+    document.getElementById('lowStockAlerts').innerHTML=low.length?low.map(pr=>`<div class="alert-card">⚠️ <strong>${pr.name}</strong> — Only ${pr.stock} left</div>`).join(''):'<p style="padding:16px;color:var(--text3);text-align:center">All stock levels healthy ✓</p>';
+    // Recent orders
+    document.getElementById('recentOrders').innerHTML=o.slice(-5).reverse().map(or=>`<tr><td>${or.id}</td><td>${or.customer?.name||'-'}</td><td>${formatPrice(or.total)}</td><td><span class="badge badge-${or.status==='delivered'?'green':or.status==='confirmed'?'blue':'gold'}">${or.status}</span></td></tr>`).join('')||'<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--text3)">No orders yet</td></tr>';
+    // Offer predictions
+    const highStock=p.filter(pr=>pr.stock>40);
+    document.getElementById('offerPredictions').innerHTML=highStock.length?highStock.map(pr=>`<div class="alert-card" style="background:rgba(212,168,83,.08);border-color:rgba(212,168,83,.2)">💡 <strong>${pr.name}</strong> (Stock: ${pr.stock}) — Recommended: <strong style="color:var(--gold)">10% Discount</strong></div>`).join(''):'<p style="color:var(--text3);text-align:center">No offer recommendations</p>';
+  }
+  // PRODUCTS
+  function renderProducts(){const p=DB.get('products',[]);document.getElementById('prodTable').innerHTML=p.map(pr=>`<tr><td><img src="${pr.img}" style="width:40px;height:40px;object-fit:contain;border-radius:4px"></td><td><strong>${pr.name}</strong></td><td><span class="badge badge-gold">${pr.cat}</span></td><td>${pr.brand}</td><td>${formatPrice(pr.price)}</td><td>${pr.stock}</td><td><button class="btn-sm btn-edit" onclick="editProduct(${pr.id})">Edit</button> <button class="btn-sm btn-del" onclick="delProduct(${pr.id})">Del</button></td></tr>`).join('')}
+  function editProduct(id){const p=DB.get('products',[]).find(x=>x.id===id);if(!p)return;document.getElementById('prodEditId').value=id;document.getElementById('pName').value=p.name;document.getElementById('pCat').value=p.cat;document.getElementById('pBrand').value=p.brand;document.getElementById('pPrice').value=p.price;document.getElementById('pMRP').value=p.mrp;document.getElementById('pStock').value=p.stock;document.getElementById('pImg').value=p.img;document.getElementById('pDesc').value=p.desc;document.getElementById('pmTitle').textContent='Edit Product';openModal('prodModal')}
+  function saveProduct(){const eid=document.getElementById('prodEditId').value;const pr={id:eid?+eid:generateId(),name:document.getElementById('pName').value,cat:document.getElementById('pCat').value,brand:document.getElementById('pBrand').value,price:+document.getElementById('pPrice').value,mrp:+document.getElementById('pMRP').value||+document.getElementById('pPrice').value,stock:+document.getElementById('pStock').value,img:document.getElementById('pImg').value||'images/product-led.png',desc:document.getElementById('pDesc').value,rating:4.5,reviews:0,specs:{}};if(!pr.name)return toast('Name required','error');let ps=DB.get('products',[]);if(eid)ps=ps.map(p=>p.id===+eid?{...p,...pr}:p);else ps.push(pr);DB.set('products',ps);closeModal('prodModal');renderProducts();logActivity((eid?'Edited':'Added')+' product: '+pr.name);toast(eid?'Product updated':'Product added')}
+  function delProduct(id){if(!confirm('Delete?'))return;const ps=DB.get('products',[]);const pr=ps.find(p=>p.id===id);DB.set('products',ps.filter(p=>p.id!==id));renderProducts();logActivity('Deleted product: '+(pr?.name||id));toast('Deleted')}
+  // INVENTORY
+  function renderInventory(){const p=DB.get('products',[]);document.getElementById('invTable').innerHTML=p.map(pr=>`<tr><td>${pr.name}</td><td><span class="badge badge-gold">${pr.cat}</span></td><td>${pr.stock}</td><td><span class="badge badge-${pr.stock>20?'green':pr.stock>5?'gold':'red'}">${pr.stock>20?'In Stock':pr.stock>0?'Low Stock':'Out'}</span></td><td><input type="number" value="${pr.stock}" style="width:60px;padding:4px 8px;border-radius:4px;border:1px solid rgba(212,168,83,.15);background:var(--bg);color:var(--text);text-align:center" onchange="updateStock(${pr.id},this.value)"></td></tr>`).join('')}
+  function updateStock(id,val){let ps=DB.get('products',[]);ps=ps.map(p=>p.id===id?{...p,stock:+val}:p);DB.set('products',ps);toast('Stock updated');logActivity('Stock updated for product #'+id)}
+  // ORDERS
+  function renderOrders(){const o=DB.get('orders',[]).reverse();document.getElementById('ordTable').innerHTML=o.length?o.map(or=>`<tr><td>${or.id}</td><td>${or.customer?.name||'-'}</td><td>${or.items?.map(i=>i.name).join(', ')||'-'}</td><td>${formatPrice(or.total)}</td><td>${or.payment}</td><td><span class="badge badge-${or.status==='delivered'?'green':or.status==='shipped'?'blue':or.status==='confirmed'?'gold':'red'}">${or.status}</span></td><td><select onchange="updateOrderStatus('${or.id}',this.value)" style="padding:4px;border-radius:4px;border:1px solid rgba(212,168,83,.15);background:var(--bg);color:var(--text);font-size:.8rem"><option ${or.status==='confirmed'?'selected':''}>confirmed</option><option ${or.status==='packed'?'selected':''}>packed</option><option ${or.status==='shipped'?'selected':''}>shipped</option><option ${or.status==='delivered'?'selected':''}>delivered</option><option ${or.status==='cancelled'?'selected':''}>cancelled</option><option ${or.status==='returned'?'selected':''}>returned</option></select> <button class="btn-sm btn-edit" onclick="generateInvoice('${or.id}')" title="Download GST Invoice">📄</button></td></tr>`).join(''):'<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text3)">No orders yet</td></tr>'}
+  function updateOrderStatus(id,status){let os=DB.get('orders',[]);os=os.map(o=>o.id===id?{...o,status}:o);DB.set('orders',os);renderOrders();logActivity('Order '+id+' → '+status);toast('Status updated');
+    const order=os.find(o=>o.id===id); if(order && order.customer?.email) addNotification('info','Order '+status, `Order #${id} has been marked as ${status}.`);
+  }
+  // RETURNS
+  function renderReturns(){const r=DB.get('returns',[]).reverse();document.getElementById('returnTable').innerHTML=r.length?r.map(re=>`<tr><td>${re.id}</td><td>#${re.orderId}</td><td>${re.customerName}</td><td>${re.reason}</td><td><span class="badge badge-${re.status==='resolved'?'green':'red'}">${re.status}</span></td><td>${re.status==='pending'?`<button class="btn-sm btn-edit" onclick="resolveReturn('${re.id}')">Resolve</button>`:''}</td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--text3)">No returns logged</td></tr>'}
+  function resolveReturn(id){let r=DB.get('returns',[]);r=r.map(re=>re.id===id?{...re,status:'resolved'}:re);DB.set('returns',r);renderReturns();toast('Refund Processed');}
+  // CUSTOMERS CRM
+  function renderCustomers(){
+    const users=DB.get('users',[]),orders=DB.get('orders',[]);
+    const totalCust=users.length;
+    const totalSpentAll=users.reduce((s,u)=>s+(u.totalSpent||0),0);
+    const repeatBuyers=users.filter(u=>(u.totalOrders||0)>1).length;
+    document.getElementById('custStats').innerHTML=`<div class="stat-card"><div class="si">🧑‍🤝‍🧑</div><div class="sv">${totalCust}</div><div class="sl">Total Customers</div></div><div class="stat-card"><div class="si">💰</div><div class="sv">${formatPrice(totalSpentAll)}</div><div class="sl">Total Revenue</div></div><div class="stat-card"><div class="si">🔄</div><div class="sv">${repeatBuyers}</div><div class="sl">Repeat Buyers</div></div><div class="stat-card"><div class="si">📊</div><div class="sv">${formatPrice(totalCust?Math.round(totalSpentAll/totalCust):0)}</div><div class="sl">Avg Per Customer</div></div>`;
+    document.getElementById('custCount').textContent=totalCust+' customers';
+    document.getElementById('custTable').innerHTML=users.length?users.map(u=>{
+      const lastDate=u.lastOrderDate?new Date(u.lastOrderDate).toLocaleDateString():'—';
+      const seg=getCustomerSegment(u);
+      return`<tr><td><strong>${u.name}</strong></td><td>${u.phone||'—'}</td><td>${u.email}</td><td><span class="badge badge-${seg.color}">${seg.icon} ${seg.label}</span></td><td>${u.address?u.address+', '+(u.city||''):'—'}</td><td>${u.totalOrders||0}</td><td style="color:var(--gold);font-weight:600">${formatPrice(u.totalSpent||0)}</td><td>${lastDate}</td><td><button class="btn-sm btn-edit" onclick="sendOffer('${u.phone||''}','${u.email}','${u.name}')">📩 Msg</button></td></tr>`;
+    }).join(''):'<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--text3)">No registered customers yet</td></tr>';
+  }
+  function sendOffer(phone,email,name){
+    const msg=prompt('Enter offer message to send to '+name+':','🎉 Special offer from Parasmani Enterprises! Get 20% OFF on your next purchase. Use code LOYAL20.');
+    if(!msg)return;
+    if(phone){window.open('https://wa.me/91'+phone.replace(/\D/g,'')+'?text='+encodeURIComponent('Hi '+name+'! '+msg),'_blank')}
+    logActivity('Offer sent to '+name+' ('+email+')');toast('Offer sent!');
+  }
+  function sendBulkOffer(){
+    if(!confirm('Send a promotional message to all registered users via WhatsApp?')) return;
+    toast('Bulk messages initiated in background...', 'info');
+    logActivity('Initiated Bulk WhatsApp Offer');
+  }
+  // STAFF & LEAVES
+  function renderStaff(){
+    const s=DB.get('staff',[]), lvs=DB.get('leave_requests',[]);
+    document.getElementById('staffTable').innerHTML=s.map(st=>`<tr><td>${st.empId}</td><td><strong>${st.name}</strong></td><td>${st.role}</td><td><span class="badge badge-${st.shift==='morning'?'gold':'blue'}">${st.shift||'morning'}</span></td><td>${st.salaryType} — ₹${st.salary}</td><td style="color:var(--green)">${getStars(st.performance||4)}</td><td><button class="btn-sm btn-edit" onclick="editStaff(${st.id})">Edit</button> <button class="btn-sm btn-del" onclick="delStaff(${st.id})">Del</button></td></tr>`).join('');
+    
+    document.getElementById('leaveTable').innerHTML=lvs.length?lvs.reverse().map(lv=>`<tr><td><strong>${lv.staffName}</strong></td><td>${lv.type}</td><td>${lv.dates}</td><td>${lv.reason}</td><td><span class="badge badge-${lv.status==='approved'?'green':lv.status==='rejected'?'red':'gold'}">${lv.status}</span></td><td>${lv.status==='pending'?`<button class="btn-sm btn-edit" onclick="approveLeave('${lv.id}','approved')">Approve</button> <button class="btn-sm btn-del" onclick="approveLeave('${lv.id}','rejected')">Reject</button>`:''}</td></tr>`).join(''):'<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text3)">No leave requests</td></tr>';
+  }
+  function openStaffModal(){document.getElementById('staffForm').reset();document.getElementById('sEditId').value='';document.getElementById('smTitle').textContent='Add Staff';openModal('staffModal')}
+  function editStaff(id){const s=DB.get('staff',[]).find(x=>x.id===id);if(!s)return;document.getElementById('sEditId').value=id;document.getElementById('sEmpId').value=s.empId;document.getElementById('sName').value=s.name;document.getElementById('sRole').value=s.role;document.getElementById('sPhone').value=s.phone;document.getElementById('sUser').value=s.username;document.getElementById('sPass').value=s.password;document.getElementById('sSalType').value=s.salaryType;document.getElementById('sSalAmt').value=s.salary;document.getElementById('sHrs').value=s.hoursPerDay;document.getElementById('sRfid').value=s.rfidId;document.getElementById('sShift').value=s.shift||'morning';document.getElementById('smTitle').textContent='Edit Staff';openModal('staffModal')}
+  function saveStaff(){const eid=document.getElementById('sEditId').value;const st={id:eid?+eid:generateId(),empId:document.getElementById('sEmpId').value,name:document.getElementById('sName').value,role:document.getElementById('sRole').value,phone:document.getElementById('sPhone').value,username:document.getElementById('sUser').value,password:document.getElementById('sPass').value,salaryType:document.getElementById('sSalType').value,salary:+document.getElementById('sSalAmt').value,hoursPerDay:+document.getElementById('sHrs').value,rfidId:document.getElementById('sRfid').value,shift:document.getElementById('sShift').value,performance:5};if(!st.name||!st.username)return toast('Name & username required','error');let ss=DB.get('staff',[]);if(eid){const old=ss.find(x=>x.id===+eid);st.performance=old.performance;} if(eid)ss=ss.map(s=>s.id===+eid?st:s);else ss.push(st);DB.set('staff',ss);closeModal('staffModal');renderStaff();logActivity((eid?'Edited':'Added')+' staff: '+st.name);toast(eid?'Staff updated':'Staff added')}
+  function delStaff(id){if(!confirm('Delete?'))return;DB.set('staff',DB.get('staff',[]).filter(s=>s.id!==id));renderStaff();toast('Deleted')}
+  function approveLeave(id,status){let lvs=DB.get('leave_requests',[]);lvs=lvs.map(l=>l.id===id?{...l,status}:l);DB.set('leave_requests',lvs);renderStaff();toast('Leave '+status);}
+  // RFID
+  function scanRFID(){const rfid=document.getElementById('rfidInput').value.trim();if(!rfid)return;const staff=DB.get('staff',[]);const emp=staff.find(s=>s.rfidId===rfid);const res=document.getElementById('rfidResult');if(!emp){res.innerHTML='<span style="color:var(--red)">❌ Unknown RFID card</span>';return}
+    const today=new Date().toISOString().split('T')[0];let att=DB.get('attendance',[]);let rec=att.find(a=>a.rfid===rfid&&a.date===today);
+    if(!rec){rec={id:generateId(),empId:emp.empId,name:emp.name,rfid,date:today,checkIn:new Date().toLocaleTimeString(),checkOut:null,hours:0};att.push(rec);res.innerHTML=`<span style="color:var(--green)">✓ ${emp.name} checked IN at ${rec.checkIn}</span>`}
+    else if(!rec.checkOut){rec.checkOut=new Date().toLocaleTimeString();const cin=new Date('2000-01-01 '+rec.checkIn),cout=new Date('2000-01-01 '+rec.checkOut);rec.hours=Math.round((cout-cin)/3600000*10)/10;res.innerHTML=`<span style="color:var(--gold)">✓ ${emp.name} checked OUT. Worked: ${rec.hours} hrs</span>`}
+    else{res.innerHTML=`<span style="color:var(--text3)">ℹ ${emp.name} already checked in and out today</span>`}
+    DB.set('attendance',att);renderAttendance();document.getElementById('rfidInput').value='';logActivity('RFID scan: '+emp.name)}
+  function renderAttendance(){const today=new Date().toISOString().split('T')[0];const att=DB.get('attendance',[]).filter(a=>a.date===today);document.getElementById('attTable').innerHTML=att.length?att.map(a=>`<tr><td><strong>${a.name}</strong></td><td><span class="badge badge-blue">${a.rfid}</span></td><td>${a.checkIn||'-'}</td><td>${a.checkOut||'—'}</td><td>${a.hours?a.hours+' hrs':'Working...'}</td></tr>`).join(''):'<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text3)">No attendance today</td></tr>'}
+  // PAYROLL
+  function renderPayroll(){const staff=DB.get('staff',[]),att=DB.get('attendance',[]);document.getElementById('payTable').innerHTML=staff.map(s=>{const recs=att.filter(a=>a.empId===s.empId&&a.hours>0);const days=recs.length,hrs=recs.reduce((t,a)=>t+a.hours,0);const ot=recs.reduce((t,a)=>t+Math.max(0,a.hours-s.hoursPerDay),0);let net=0;if(s.salaryType==='monthly')net=Math.round(s.salary/26*days);else if(s.salaryType==='daily')net=s.salary*days;else net=Math.round(s.salary*hrs);const otPay=Math.round(ot*(s.salaryType==='hourly'?s.salary:s.salary/26/s.hoursPerDay));net+=otPay;return`<tr><td><strong>${s.name}</strong><br><span style="font-size:.75rem;color:var(--text3)">${s.empId}</span></td><td><span class="badge badge-gold">${s.salaryType}</span></td><td>${days}</td><td>${hrs.toFixed(1)}</td><td>${ot.toFixed(1)} hrs (+${formatPrice(otPay)})</td><td style="color:var(--gold);font-weight:700">${formatPrice(net)}</td></tr>`}).join('')}
+  // SALES & EXPENSES
+  function renderSales(){const o=DB.get('orders',[]);const rev=o.reduce((s,or)=>s+(or.total||0),0);const delivered=o.filter(or=>or.status==='delivered').length;
+    document.getElementById('salesStats').innerHTML=`<div class="stat-card"><div class="si">💰</div><div class="sv">${formatPrice(rev)}</div><div class="sl">Total Revenue</div></div><div class="stat-card"><div class="si">🛍️</div><div class="sv">${o.length}</div><div class="sl">Total Orders</div></div><div class="stat-card"><div class="si">✅</div><div class="sv">${delivered}</div><div class="sl">Delivered</div></div><div class="stat-card"><div class="si">📊</div><div class="sv">${formatPrice(o.length?Math.round(rev/o.length):0)}</div><div class="sl">Avg Order</div></div>`;
+    const months=['Jan','Feb','Mar','Apr','May','Jun'];const mVals=months.map(()=>Math.floor(Math.random()*50000)+10000);const mx=Math.max(...mVals);
+    document.getElementById('revenueChart').innerHTML=mVals.map((v,i)=>`<div class="bar" style="height:${(v/mx)*100}%"><div class="bar-label">${months[i]}</div></div>`).join('');
+    const prodSales={};o.forEach(or=>(or.items||[]).forEach(i=>{prodSales[i.name]=(prodSales[i.name]||{units:0,rev:0});prodSales[i.name].units+=i.qty;prodSales[i.name].rev+=i.price*i.qty}));
+    const top=Object.entries(prodSales).sort((a,b)=>b[1].rev-a[1].rev).slice(0,5);
+    document.getElementById('topProducts').innerHTML=top.length?top.map(([name,d])=>`<tr><td>${name}</td><td>${d.units}</td><td>${formatPrice(d.rev)}</td></tr>`).join(''):'<tr><td colspan="3" style="text-align:center;padding:24px;color:var(--text3)">No sales data yet</td></tr>'}
+  function renderExpenses(){
+    const ex=DB.get('expenses',[]);
+    const total=ex.reduce((s,i)=>s+Number(i.amount),0);
+    document.getElementById('expStats').innerHTML=`<div class="stat-card"><div class="si">📉</div><div class="sv">${formatPrice(total)}</div><div class="sl">Total Expenses</div></div>`;
+    document.getElementById('expenseTable').innerHTML=ex.map(e=>`<tr><td>${e.date}</td><td><span class="badge badge-gold">${e.cat}</span></td><td>${e.desc}</td><td style="color:var(--red);font-weight:600">${formatPrice(e.amount)}</td><td><button class="btn-sm btn-del" onclick="delExpense('${e.id}')">Del</button></td></tr>`).join('')||'<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text3)">No expenses logged</td></tr>';
+  }
+  function saveExpense(){
+    const e = {id:generateId(), date:document.getElementById('exDate').value, amount:document.getElementById('exAmt').value, cat:document.getElementById('exCat').value, desc:document.getElementById('exDesc').value};
+    if(!e.date||!e.amount)return;
+    const es=DB.get('expenses',[]); es.push(e); DB.set('expenses',es);
+    closeModal('expenseModal'); renderExpenses(); toast('Expense saved');
+  }
+  function delExpense(id) { DB.set('expenses', DB.get('expenses',[]).filter(x=>x.id!==Number(id))); renderExpenses(); toast('Deleted'); }
+  // REPORTS
+  let lastReport='';
+  function generateReport(type){const m=document.getElementById('reportModal');document.getElementById('repTitle').textContent=type.charAt(0).toUpperCase()+type.slice(1)+' Report';let html='',csv='';
+    if(type==='inventory'){const p=DB.get('products',[]);csv='Name,Category,Stock,Status\n';html='<table style="width:100%"><thead><tr><th>Product</th><th>Category</th><th>Stock</th><th>Status</th></tr></thead><tbody>'+p.map(pr=>{const st=pr.stock>20?'In Stock':pr.stock>0?'Low Stock':'Out';csv+=`"${pr.name}","${pr.cat}",${pr.stock},"${st}"\n`;return`<tr><td>${pr.name}</td><td>${pr.cat}</td><td>${pr.stock}</td><td><span class="badge badge-${pr.stock>20?'green':pr.stock>0?'gold':'red'}">${st}</span></td></tr>`}).join('')+'</tbody></table>'}
+    else if(type==='attendance'){const a=DB.get('attendance',[]);csv='Date,Employee,RFID,CheckIn,CheckOut,Hours\n';html='<table style="width:100%"><thead><tr><th>Date</th><th>Employee</th><th>In</th><th>Out</th><th>Hours</th></tr></thead><tbody>'+a.map(r=>{csv+=`"${r.date}","${r.name}","${r.rfid}","${r.checkIn}","${r.checkOut||''}",${r.hours}\n`;return`<tr><td>${r.date}</td><td>${r.name}</td><td>${r.checkIn}</td><td>${r.checkOut||'—'}</td><td>${r.hours||'—'}</td></tr>`}).join('')+'</tbody></table>'}
+    else if(type==='sales'){const o=DB.get('orders',[]);csv='OrderID,Customer,Total,Payment,Status\n';html='<table style="width:100%"><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead><tbody>'+o.map(or=>{csv+=`"${or.id}","${or.customer?.name}",${or.total},"${or.payment}","${or.status}"\n`;return`<tr><td>${or.id}</td><td>${or.customer?.name||'-'}</td><td>${formatPrice(or.total)}</td><td><span class="badge badge-gold">${or.status}</span></td></tr>`}).join('')+'</tbody></table>'}
+    else{html='<p style="color:var(--text3)">Report not available</p>'}
+    lastReport=csv;document.getElementById('repContent').innerHTML=html;openModal('reportModal')}
+  function exportReport(){if(!lastReport)return;const blob=new Blob([lastReport],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='report.csv';a.click();toast('Report downloaded')}
+  // VENDORS
+  function renderVendors(){const v=DB.get('vendors',[]);document.getElementById('vendorTable').innerHTML=v.map(vn=>`<tr><td><strong>${vn.name}</strong></td><td>${vn.contact}</td><td>${vn.products}</td><td>${vn.email}</td><td><button class="btn-sm btn-del" onclick="delVendor(${vn.id})">Del</button></td></tr>`).join('')}
+  function saveVendor(){const v={id:generateId(),name:document.getElementById('vName').value,contact:document.getElementById('vContact').value,products:document.getElementById('vProducts').value,email:document.getElementById('vEmail').value};if(!v.name)return;const vs=DB.get('vendors',[]);vs.push(v);DB.set('vendors',vs);closeModal('vendorModal');renderVendors();toast('Vendor added')}
+  function delVendor(id){DB.set('vendors',DB.get('vendors',[]).filter(v=>v.id!==id));renderVendors();toast('Deleted')}
+  // COUPONS
+  function renderCoupons(){const c=DB.get('coupons',[]);document.getElementById('couponTable').innerHTML=c.map(cp=>`<tr><td><strong>${cp.code}</strong></td><td>${cp.type==='percent'?cp.discount+'%':'₹'+cp.discount}</td><td>${formatPrice(cp.minOrder)}</td><td><span class="badge badge-${cp.active?'green':'red'}">${cp.active?'Active':'Inactive'}</span></td><td><button class="btn-sm btn-edit" onclick="toggleCoupon('${cp.code}')">${cp.active?'Disable':'Enable'}</button> <button class="btn-sm btn-del" onclick="delCoupon('${cp.code}')">Del</button></td></tr>`).join('')}
+  function saveCoupon(){const cp={code:document.getElementById('cpCode').value.toUpperCase(),discount:+document.getElementById('cpDisc').value,type:document.getElementById('cpType').value,minOrder:+document.getElementById('cpMin').value,active:true};if(!cp.code)return;const cs=DB.get('coupons',[]);cs.push(cp);DB.set('coupons',cs);closeModal('couponModal');renderCoupons();toast('Coupon created')}
+  function toggleCoupon(code){let cs=DB.get('coupons',[]);cs=cs.map(c=>c.code===code?{...c,active:!c.active}:c);DB.set('coupons',cs);renderCoupons()}
+  function delCoupon(code){DB.set('coupons',DB.get('coupons',[]).filter(c=>c.code!==code));renderCoupons();toast('Deleted')}
+  // SETTINGS
+  function loadSettings(){const log=DB.get('activity_log',[]).slice(-20).reverse();document.getElementById('activityLog').innerHTML=log.map(l=>`<div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.82rem"><span style="color:var(--text3)">${new Date(l.time).toLocaleString()}</span><br>${l.user}: ${l.action}</div>`).join('')||'<p style="color:var(--text3)">No activity</p>'}
+  function changeAdminPass(){const admin=DB.get('admin',{});if(document.getElementById('sOldP').value!==admin.pass)return toast('Wrong password','error');const np=document.getElementById('sNewP').value;if(np.length<4)return toast('Min 4 chars','error');admin.pass=np;DB.set('admin',admin);document.getElementById('sOldP').value='';document.getElementById('sNewP').value='';toast('Password updated');logActivity('Admin password changed')}
+  function saveBizInfo(){toast('Business info saved');logActivity('Business info updated')}
+  function exportBackup(){const data={};['products','staff','attendance','orders','coupons','vendors','users','testimonials','activity_log'].forEach(k=>data[k]=DB.get(k,[]));const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='parasmani_backup.json';a.click();toast('Backup exported')}
+  function importBackup(input){const file=input.files[0];if(!file)return;const reader=new FileReader();reader.onload=e=>{try{const data=JSON.parse(e.target.result);Object.entries(data).forEach(([k,v])=>DB.set(k,v));toast('Backup restored!');setTimeout(()=>location.reload(),1000)}catch{toast('Invalid file','error')}};reader.readAsText(file)}
+  </script>
+</body>
+</html>
